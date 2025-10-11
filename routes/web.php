@@ -1,87 +1,26 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Rotas Web
-|--------------------------------------------------------------------------
-|
-| Aqui é onde você pode registrar as rotas para a sua aplicação.
-| Estas rotas são carregadas pelo RouteServiceProvider.
-|
-*/
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\OcorrenciaController;
+use App\Http\Controllers\Admin\AdminController;
 
 // --- ROTAS DE ACESSO PÚBLICO E DE USUÁRIOS ---
+Route::get('/', [AuthController::class, 'showLoginForm']);
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::get('/cadastro', [AuthController::class, 'showRegistrationForm'])->name('register');
 
-// Rota principal: leva para a tela de login do usuário.
-Route::get('/', function () {
-    return view('LoginUsuario.login');
-});
-
-// Rota explícita para o login do usuário.
-Route::get('/login', function () {
-    return view('LoginUsuario.login');
-});
-
-// Rota para a página de cadastro de novos usuários.
-Route::get('/cadastro', function () {
-    return view('CadastroUsuario.cadastro');
-});
-
-
-// --- ROTAS DO PAINEL DO USUÁRIO (exigirão login futuramente) ---
-
-// Rota para o dashboard principal do usuário.
-Route::get('/dashboard', function () {
-    return view('DashboardUsuario.dashboard');
-});
-
-// Rota para a página de registro de uma nova ocorrência.
-Route::get('/ocorrencias/registrar', function () {
-    return view('DashboardUsuario.registro');
-});
-
-// Rota para visualizar os detalhes de um relato específico.
-Route::get('/ocorrencias/relato', function () {
-    // Nota: Futuramente, esta rota receberá um ID, ex: /ocorrencias/relato/{id}
-    return view('DashboardUsuario.relato');
-});
-
-// Rota para visualizar o histórico de um relato.
-Route::get('/ocorrencias/historico', function () {
-    // Nota: Futuramente, esta rota também receberá um ID.
-    return view('DashboardUsuario.detalhesRelato');
-});
-
+// --- ROTAS DO PAINEL DO USUÁRIO ---
+Route::get('/dashboard', [OcorrenciaController::class, 'index'])->name('user.dashboard');
+Route::get('/ocorrencias/registrar', [OcorrenciaController::class, 'create'])->name('ocorrencias.create');
+Route::get('/ocorrencias/{id}', [OcorrenciaController::class, 'show'])->name('ocorrencias.show');
+Route::get('/ocorrencias/{id}/historico', [OcorrenciaController::class, 'historico'])->name('ocorrencias.historico');
 
 // --- ROTAS DA ÁREA ADMINISTRATIVA ---
+Route::get('/admin/login', [AuthController::class, 'showAdminLoginForm'])->name('admin.login');
+Route::get('/admin/cadastro', [AuthController::class, 'showAdminRegistrationForm'])->name('admin.register');
 
-// Rota para a tela de login do administrador.
-Route::get('/admin/login', function () {
-    return view('LoginAdmin.loginADM');
-});
-
-// Rota para a página de cadastro de novos administradores.
-Route::get('/admin/cadastro', function () {
-    return view('CadastroAdmin.cadastroADM');
-});
-
-
-// --- ROTAS DO PAINEL DO ADMINISTRADOR (exigirão login de admin futuramente) ---
-
-// Rota para o dashboard principal do administrador.
-Route::get('/admin/dashboard', function () {
-    return view('DashboardAdmin.dashboardADM');
-});
-
-// Rota para visualizar os detalhes de uma ocorrência (visão do admin).
-Route::get('/admin/ocorrencias/detalhes', function () {
-    // Nota: Futuramente, esta rota receberá um ID.
-    return view('DashboardAdmin.registros');
-});
-
-// Rota para a página de relatórios e estatísticas.
-Route::get('/admin/relatorios', function () {
-    return view('DashboardAdmin.relatorios');
-});
+// --- ROTAS DO PAINEL DO ADMINISTRADOR ---
+Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+Route::get('/admin/ocorrencias/{id}', [AdminController::class, 'showOcorrencia'])->name('admin.ocorrencias.show');
+Route::get('/admin/relatorios', [AdminController::class, 'relatorios'])->name('admin.relatorios');
