@@ -29,6 +29,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // --- ROTAS DO PAINEL DO USUÁRIO ---
 Route::get('/dashboard', [OcorrenciaController::class, 'index'])->name('user.dashboard');
 Route::get('/ocorrencias/registrar', [OcorrenciaController::class, 'create'])->name('ocorrencias.create');
+
+// ROTA ADICIONADA: PARA SALVAR A NOVA OCORRÊNCIA
+Route::post('/ocorrencias/registrar', [OcorrenciaController::class, 'store'])->name('ocorrencias.store');
+
 Route::get('/ocorrencias/{id}', [OcorrenciaController::class, 'show'])->name('ocorrencias.show');
 Route::get('/ocorrencias/{id}/historico', [OcorrenciaController::class, 'historico'])->name('ocorrencias.historico');
 
