@@ -9,9 +9,20 @@ use Illuminate\Support\Facades\Auth;
 
 class OcorrenciaController extends Controller
 {
+    /**
+     * Exibe a lista de ocorrências do usuário (Dashboard).
+     */
     public function index()
     {
-        return view('DashboardUsuario.dashboard');
+        // 1. Pega o ID do usuário atualmente logado.
+        $userId = Auth::id();
+
+        // 2. Busca no banco de dados todas as ocorrências onde 'user_id' é igual ao do usuário logado.
+        //    'latest()' ordena os resultados do mais novo para o mais antigo.
+        $ocorrencias = Ocorrencia::where('user_id', $userId)->latest()->get();
+
+        // 3. Retorna a view do dashboard e passa a variável 'ocorrencias' para ela.
+        return view('DashboardUsuario.dashboard', ['ocorrencias' => $ocorrencias]);
     }
 
     public function create()
@@ -63,11 +74,17 @@ class OcorrenciaController extends Controller
 
     public function show(string $id)
     {
-        return view('DashboardUsuario.relato');
+        // Busca a ocorrência pelo ID ou falha (mostra erro 404 se não encontrar)
+        $ocorrencia = Ocorrencia::findOrFail($id);
+
+        // Retorna a view e passa a ocorrência encontrada para ela
+        return view('DashboardUsuario.relato', ['ocorrencia' => $ocorrencia]);
     }
 
     public function historico(string $id)
     {
-        return view('DashboardUsuario.detalhesRelato');
+        $ocorrencia = Ocorrencia::findOrFail($id);
+
+        return view('DashboardUsuario.detalhesRelato', ['ocorrencia' => $ocorrencia]);
     }
 }

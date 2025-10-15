@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Ocorrencia; // Model de Ocorrência importado
 
 class AdminController extends Controller
 {
@@ -12,7 +13,12 @@ class AdminController extends Controller
      */
     public function dashboard()
     {
-        return view('DashboardAdmin.dashboardADM');
+        // 1. Busca TODAS as ocorrências do banco de dados, ordenadas da mais nova para a mais antiga.
+        //    'with('relator')' é uma otimização que já busca os dados do usuário que fez o relato (o Model User).
+        $ocorrencias = Ocorrencia::with('relator')->latest()->get();
+
+        // 2. Retorna a view do dashboard do admin e passa a variável 'ocorrencias' para ela.
+        return view('DashboardAdmin.dashboardADM', ['ocorrencias' => $ocorrencias]);
     }
 
     /**
@@ -20,7 +26,11 @@ class AdminController extends Controller
      */
     public function showOcorrencia(string $id)
     {
-        return view('DashboardAdmin.registros');
+        // Busca a ocorrência pelo ID ou falha (mostra erro 404 se não encontrar)
+        $ocorrencia = Ocorrencia::findOrFail($id);
+
+        // Retorna a view e passa a ocorrência encontrada para ela
+        return view('DashboardAdmin.registros', ['ocorrencia' => $ocorrencia]);
     }
 
     /**

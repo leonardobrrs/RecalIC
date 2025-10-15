@@ -132,58 +132,59 @@
     </style>
 </head>
 <body>
-    <div class="d-flex">
-        <div class="sidebar">
-            <div class="profile-avatar">
-                U
-            </div>
-            <h5>Usuário</h5>
-            <a href="{{ url('/dashboard') }}" class="nav-button">Meus Relatos</a>
-            <a href="{{ url('/ocorrencias/registrar') }}" class="nav-button">Registrar nova ocorrência</a>
+<div class="d-flex">
+    <div class="sidebar">
+        <div class="profile-avatar">
+            U
+        </div>
+        <h5>Usuário</h5>
+        <a href="{{ url('/dashboard') }}" class="nav-button">Meus Relatos</a>
+        <a href="{{ url('/ocorrencias/registrar') }}" class="nav-button">Registrar nova ocorrência</a>
 
-            <div class="sidebar-footer">
-                <a href="{{ url('/') }}" class="logout-button">
+        <div class="sidebar-footer">
+            <form action="{{ url('/logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="logout-button">
                     <i class="bi bi-power" style="font-size: 1.5rem;"></i>
                     <span>Sair</span>
-                </a>
-            </div>
-        </div>
-
-        <div class="main-content flex-grow-1">
-            <h2 class="mb-4">Meus Relatos de Ocorrências</h2>
-
-            <div class="occurrence-list">
-                <a href="{{ url('/ocorrencias/relato') }}" class="text-decoration-none">
-                    <div class="card">
-                        <div class="card-body">
-                            <i class="bi bi-list occurrence-icon"></i>
-                            <div class="occurrence-details">
-                                <strong>Status:</strong> Em análise <br>
-                                <strong>Categoria:</strong> Infraestrutura <br>
-                                <strong>Data de abertura:</strong> 22/08/2025
-                            </div>
-                            <div class="occurrence-id">ID: 0002</div>
-                        </div>
-                    </div>
-                </a>
-
-                <a href="{{ url('/ocorrencias/relato') }}" class="text-decoration-none">
-                    <div class="card">
-                        <div class="card-body">
-                            <i class="bi bi-list occurrence-icon"></i>
-                            <div class="occurrence-details">
-                                <strong>Status:</strong> Resolvido <br>
-                                <strong>Categoria:</strong> Móveis <br>
-                                <strong>Data de abertura:</strong> 01/07/2025
-                            </div>
-                            <div class="occurrence-id">ID: 0005</div>
-                        </div>
-                    </div>
-                </a>
-            </div>
+                </button>
+            </form>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="main-content flex-grow-1">
+        <h2 class="mb-4">Meus Relatos de Ocorrências</h2>
+
+        @if(session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <div class="occurrence-list">
+            @forelse ($ocorrencias as $ocorrencia)
+                <a href="{{ url('/ocorrencias/' . $ocorrencia->id) }}" class="text-decoration-none">
+                    <div class="card">
+                        <div class="card-body">
+                            <i class="bi bi-list occurrence-icon"></i>
+                            <div class="occurrence-details">
+                                <strong>Status:</strong> {{ $ocorrencia->status }} <br>
+                                <strong>Categoria:</strong> {{ $ocorrencia->categoria }} <br>
+                                <strong>Data de abertura:</strong> {{ $ocorrencia->created_at->format('d/m/Y') }}
+                            </div>
+                            <div class="occurrence-id">ID: {{ str_pad($ocorrencia->id, 4, '0', STR_PAD_LEFT) }}</div>
+                        </div>
+                    </div>
+                </a>
+            @empty
+                <div class="alert alert-info">
+                    Você ainda não registrou nenhuma ocorrência.
+                </div>
+            @endforelse
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
