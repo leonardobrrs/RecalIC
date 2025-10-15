@@ -20,6 +20,7 @@ return new class extends Migration
             $table->enum('role', ['relator', 'admin']);
             $table->integer('reputation_score')->default(100);
             $table->timestamp('last_report_at')->nullable();
+            $table->rememberToken();
             $table->timestamps();
         });
     }
