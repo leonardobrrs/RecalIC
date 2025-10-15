@@ -13,7 +13,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f8f9fa;
         }
-
         .sidebar {
             background-color: #212529;
             color: white;
@@ -25,13 +24,11 @@
             position: fixed;
             width: 280px;
         }
-
         .sidebar-footer {
             margin-top: auto;
             width: 100%;
             padding-bottom: 20px;
         }
-
         .logout-button {
             display: flex;
             align-items: center;
@@ -47,12 +44,10 @@
             text-decoration: none;
             width: 100%;
         }
-
         .logout-button:hover {
             opacity: 1;
             color: white;
         }
-
         .profile-avatar {
             width: 150px;
             height: 150px;
@@ -66,11 +61,9 @@
             color: white;
             margin-bottom: 20px;
         }
-
         .sidebar h5 {
             margin-bottom: 40px;
         }
-
         .sidebar .nav-button {
             background-color: #f8f9fa;
             color: #343a40;
@@ -84,16 +77,13 @@
             font-weight: 500;
             transition: background-color 0.3s ease;
         }
-
         .sidebar .nav-button:hover {
             background-color: #e2e6ea;
         }
-
         .main-content {
             margin-left: 280px;
             padding: 40px;
         }
-
         .filter-area {
             background-color: #ffffff;
             border: 1px solid #dee2e6;
@@ -102,7 +92,6 @@
             margin-bottom: 40px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
-
         .occurrence-list .card {
             background-color: #ffffff;
             color: #212529;
@@ -112,38 +101,36 @@
             cursor: pointer;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-
         .occurrence-list .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
         }
-
         .occurrence-list .card-body {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-
         .occurrence-icon {
             font-size: 2.5rem;
             margin-right: 20px;
             color: #495057;
         }
-
         .occurrence-details {
             flex-grow: 1;
         }
-
         .occurrence-id {
             font-size: 0.9rem;
             color: #6c757d;
         }
-
         .sort-toggle-btn {
             background: none;
             border: 1px solid #ccc;
             border-radius: 5px;
             padding: 2px 8px;
+            color: #6c757d;
+            text-decoration: none;
+        }
+        .sort-toggle-btn:hover {
             color: #6c757d;
         }
         .sort-toggle-btn .bi {
@@ -177,30 +164,30 @@
     <div class="main-content flex-grow-1">
         <div class="filter-area">
             <h4 class="mb-4 text-center text-dark">Área de Filtros</h4>
-            <form id="filterForm">
+            <form id="filterForm" action="{{ url('/admin/dashboard') }}" method="GET">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-4">
                         <label for="statusFilter" class="form-label text-dark">Status</label>
-                        <select id="statusFilter" class="form-select">
-                            <option value="">Selecione...</option>
-                            <option value="Aberto">Em Aberto</option>
-                            <option value="Em análise">Em Análise</option>
-                            <option value="Resolvido">Resolvido</option>
+                        <select id="statusFilter" name="status" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="Aberto" {{ request('status') == 'Aberto' ? 'selected' : '' }}>Em Aberto</option>
+                            <option value="Em Análise" {{ request('status') == 'Em Análise' ? 'selected' : '' }}>Em Análise</option>
+                            <option value="Resolvido" {{ request('status') == 'Resolvido' ? 'selected' : '' }}>Resolvido</option>
                         </select>
                     </div>
                     <div class="col-md-4">
                         <label for="categoryFilter" class="form-label text-dark">Categoria</label>
-                        <select id="categoryFilter" class="form-select">
-                            <option value="">Selecione...</option>
-                            <option value="Equipamentos">Equipamentos</option>
-                            <option value="Infraestrutura">Infraestrutura</option>
-                            <option value="Eletrônicos">Eletrônicos</option>
-                            <option value="Patrimônio">Patrimônio</option>
+                        <select id="categoryFilter" name="category" class="form-select">
+                            <option value="">Todas</option>
+                            <option value="Equipamentos" {{ request('category') == 'Equipamentos' ? 'selected' : '' }}>Equipamentos</option>
+                            <option value="Infraestrutura" {{ request('category') == 'Infraestrutura' ? 'selected' : '' }}>Infraestrutura</option>
+                            <option value="Eletrônicos" {{ request('category') == 'Eletrônicos' ? 'selected' : '' }}>Eletrônicos</option>
+                            <option value="Patrimônio" {{ request('category') == 'Patrimônio' ? 'selected' : '' }}>Patrimônio</option>
                         </select>
                     </div>
                     <div class="col-md-4">
                         <label for="searchField" class="form-label text-dark">Campo de busca</label>
-                        <input type="text" class="form-control" id="searchField" placeholder="Pesquisar por ID, nome...">
+                        <input type="text" class="form-control" name="search" id="searchField" value="{{ request('search') }}" placeholder="Pesquisar por descrição, nome...">
                     </div>
                     <div class="col-12 text-end mt-4">
                         <button type="submit" class="btn btn-dark">Filtrar</button>
@@ -211,10 +198,10 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="mb-0">Ocorrências</h3>
-            <button id="sort-toggle-btn" class="sort-toggle-btn" title="Alternar Ordem por Data">
-                <i id="sort-asc" class="bi bi-arrow-up"></i>
-                <i id="sort-desc" class="bi bi-arrow-down active-sort"></i>
-            </button>
+            <a href="{{ url('/admin/dashboard') }}?sort={{ ($currentSort ?? 'desc') == 'desc' ? 'asc' : 'desc' }}&{{ http_build_query(request()->except('sort')) }}" class="sort-toggle-btn" title="Alternar Ordem por Data">
+                <i class="bi bi-arrow-up @if(($currentSort ?? 'desc') == 'asc') active-sort @endif"></i>
+                <i class="bi bi-arrow-down @if(($currentSort ?? 'desc') == 'desc') active-sort @endif"></i>
+            </a>
         </div>
 
         <div class="occurrence-list">
@@ -235,7 +222,7 @@
                 </a>
             @empty
                 <div class="alert alert-info">
-                    Nenhuma ocorrência registrada no sistema ainda.
+                    Nenhuma ocorrência encontrada com os filtros aplicados.
                 </div>
             @endforelse
         </div>
@@ -243,10 +230,10 @@
 </div>
 
 <script>
-    // O JavaScript para filtros e ordenação continua o mesmo.
-    // Ele continuará funcionando com os cards gerados dinamicamente.
     document.addEventListener('DOMContentLoaded', () => {
-        // ... (seu código JS existente)
+        const occurrenceList = document.querySelector('.occurrence-list');
+        const sortToggleButton = document.getElementById('sort-toggle-btn');
+        // ... (lógica de ordenação e clique nos cards continua a mesma)
     });
 </script>
 </body>
