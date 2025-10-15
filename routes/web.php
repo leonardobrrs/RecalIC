@@ -5,10 +5,26 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\OcorrenciaController;
 use App\Http\Controllers\Admin\AdminController;
 
-// --- ROTAS DE ACESSO PÚBLICO E DE USUÁRIOS ---
-Route::get('/', [AuthController::class, 'showLoginForm']);
+/*
+|--------------------------------------------------------------------------
+| Rotas Web
+|--------------------------------------------------------------------------
+*/
+
+// Rota principal da aplicação: redireciona para a tela de login.
+Route::get('/', function () {
+    return redirect()->route('login');
+});
+
+// --- ROTAS DE AUTENTICAÇÃO DE USUÁRIO ---
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+
 Route::get('/cadastro', [AuthController::class, 'showRegistrationForm'])->name('register');
+Route::post('/cadastro', [AuthController::class, 'register']);
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
 
 // --- ROTAS DO PAINEL DO USUÁRIO ---
 Route::get('/dashboard', [OcorrenciaController::class, 'index'])->name('user.dashboard');
@@ -16,9 +32,14 @@ Route::get('/ocorrencias/registrar', [OcorrenciaController::class, 'create'])->n
 Route::get('/ocorrencias/{id}', [OcorrenciaController::class, 'show'])->name('ocorrencias.show');
 Route::get('/ocorrencias/{id}/historico', [OcorrenciaController::class, 'historico'])->name('ocorrencias.historico');
 
+
 // --- ROTAS DA ÁREA ADMINISTRATIVA ---
 Route::get('/admin/login', [AuthController::class, 'showAdminLoginForm'])->name('admin.login');
+Route::post('/admin/login', [AuthController::class, 'adminLogin']);
+
 Route::get('/admin/cadastro', [AuthController::class, 'showAdminRegistrationForm'])->name('admin.register');
+Route::post('/admin/cadastro', [AuthController::class, 'adminRegister']);
+
 
 // --- ROTAS DO PAINEL DO ADMINISTRADOR ---
 Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');

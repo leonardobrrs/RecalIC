@@ -4,48 +4,110 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
-    // Exibe a tela de login do usuário comum
-    public function showLoginForm()
-    {
-        return view('LoginUsuario.login');
-    }
+    // --- MÉTODOS DE EXIBIÇÃO ---
+    public function showLoginForm() { return view('LoginUsuario.login'); }
+    public function showRegistrationForm() { return view('CadastroUsuario.cadastro'); }
+    public function showAdminLoginForm() { return view('LoginAdmin.loginADM'); }
+    public function showAdminRegistrationForm() { return view('CadastroAdmin.cadastroADM'); }
 
-    // Exibe a tela de cadastro do usuário comum
-    public function showRegistrationForm()
-    {
-        return view('CadastroUsuario.cadastro');
-    }
-
-    // Exibe a tela de login do administrador
-    public function showAdminLoginForm()
-    {
-        return view('LoginAdmin.loginADM');
-    }
-
-    // Exibe a tela de cadastro do administrador
-    public function showAdminRegistrationForm()
-    {
-        return view('CadastroAdmin.cadastroADM');
-    }
-
-    // Lógica de login (será implementada na Semana 2)
-    public function login(Request $request)
-    {
-        // A ser implementado
-    }
-
-    // Lógica de cadastro (será implementada na Semana 2)
+    // --- LÓGICA DE USUÁRIO COMUM ---
     public function register(Request $request)
     {
-        // A ser implementado
+        $request->validate([
+            'nomeCompleto' => 'required|string|max:255',
+            'cpf' => 'required|string|unique:users,cpf_cis',
+            'email' => 'required|string|email|max:255|unique:users',
+            'senha' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = User::create([
+            'name' => $request->nomeCompleto,
+            'email' => $request->email,
+            'cpf_cis' => $request->cpf,
+            'password' => Hash::make($request->senha),
+            'role' => 'relator',
+        ]);
+
+        Auth::login($user);
+        return redirect()->route('user.dashboard');
     }
 
-    // Lógica de logout (será implementada na Semana 2)
+    public function login(Request $request)
+    {
+        $request->validate(['email' => 'required|email', 'senha' => 'required']);
+        $credentials = ['email' => $request->email, 'password' => $request->senha];
+        $remember = $request->filled('remember');
+
+        if (Auth::attempt($credentials, $remember)) {
+            $request->session()->regenerate();
+            return redirect()->intended(route('user.dashboard'));
+        }
+
+        return back()->withErrors(['email' => 'As credenciais fornecidas não correspondem aos nossos registros.'])->onlyInput('email');
+    }
+
     public function logout(Request $request)
     {
-        // A ser implementado
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/login');
+    }
+
+    // --- LÓGICA DE ADMINISTRADOR ---
+
+    public function adminRegister(Request $request)
+    {
+        // 1. Validação dos dados (similar, mas com 'cis')
+        $request->validate([
+            'nomeCompleto' => 'required|string|max:255',
+            'cis' => 'required|string|unique:users,cpf_cis', // Valida o campo 'cis'
+            'email' => 'required|string|email|max:255|unique:users',
+            'senha' => 'required|string|min:8|confirmed',
+        ]);
+
+        // 2. Criação do usuário com o 'role' de 'admin'
+        $user = User::create([
+            'name' => $request->nomeCompleto,
+            'email' => $request->email,
+            'cpf_cis' => $request->cis, // Salva o CIS
+            'password' => Hash::make($request->senha),
+            'role' => 'admin', // Define o papel como 'admin'
+        ]);
+
+        // 3. Redireciona para a página de login do admin com uma mensagem de sucesso
+        return redirect()->route('admin.login')->with('success', 'Conta administrativa criada com sucesso!');
+    }
+
+    public function adminLogin(Request $request)
+    {
+        // 1. Validação dos dados
+        $request->validate(['email' => 'required|email', 'senha' => 'required']);
+
+        // 2. Prepara as credenciais para a tentativa de login
+        $credentials = ['email' => $request->email, 'password' => $request->senha];
+        $remember = $request->filled('remember');
+
+        // 3. Tenta autenticar o usuário
+        if (Auth::attempt($credentials, $remember)) {
+            // 4. VERIFICA SE O USUÁRIO LOGADO É UM ADMINISTRADOR
+            if (Auth::user()->role === 'admin') {
+                $request->session()->regenerate();
+                return redirect()->intended(route('admin.dashboard'));
+            }
+
+            // Se for um usuário comum tentando logar aqui, faz o logout e retorna um erro
+            Auth::logout();
+        }
+
+        // 5. Se falhar, volta para o login com uma mensagem de erro
+        return back()->withErrors(['email' => 'Credenciais de administrador inválidas.'])->onlyInput('email');
     }
 }

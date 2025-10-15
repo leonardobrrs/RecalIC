@@ -6,138 +6,91 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <title>Cadastro Administrativo - Sistema de Recall</title>
+    <title>Cadastro Administrativo - RecalIC</title>
 </head>
 <body class="bg-light">
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="card shadow">
-                    <div class="card-header bg-dark text-white text-center py-4">
-                        <h3 class="mb-0"><i class="bi bi-person-plus"></i> Criar Conta Administrativa</h3>
-                        <p class="mb-0 mt-2">Sistema de Recall - UFAL</p>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white text-center py-4">
+                    <h3 class="mb-0"><i class="bi bi-person-plus"></i> Criar Conta Administrativa</h3>
+                    <p class="mb-0 mt-2">RecalIC - UFAL</p>
+                </div>
+                <div class="card-body">
+                    <div class="mx-auto text-center p-3">
+                        <img src="https://ufal.br/ufal/comunicacao/identidade-visual/brasao/somente-imagem/brasao-ufal.png" height="120" width="69" alt="Brasão UFAL" class="img-fluid">
                     </div>
-                    <div class="card-body">
-                        <div class="mx-auto text-center p-3">
-                            <img src="https://ufal.br/ufal/comunicacao/identidade-visual/brasao/somente-imagem/brasao-ufal.png" height="120" width="69" alt="Brasão UFAL" class="img-fluid">
+
+                    <form id="cadastroForm" action="{{ url('/admin/cadastro') }}" method="POST">
+                        @csrf
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control @error('nomeCompleto') is-invalid @enderror" id="nomeCompleto" name="nomeCompleto" placeholder="Nome Completo" value="{{ old('nomeCompleto') }}" required>
+                                    <label for="nomeCompleto"><i class="bi bi-person"></i> Nome Completo</label>
+                                    @error('nomeCompleto')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
 
-                        <form id="cadastroForm" class="needs-validation" novalidate>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" id="nomeCompleto" placeholder="Nome Completo" required>
-                                        <label for="nomeCompleto"><i class="bi bi-person"></i> Nome Completo</label>
-                                        <div class="invalid-feedback">
-                                            Por favor, informe seu nome completo.
-                                        </div>
-                                    </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control @error('cis') is-invalid @enderror" id="cis" name="cis" placeholder="CIS" value="{{ old('cis') }}" required>
+                                    <label for="cis"><i class="bi bi-card-text"></i> CIS</label>
+                                    @error('cis')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="E-mail" value="{{ old('email') }}" required>
+                                    <label for="email"><i class="bi bi-envelope"></i> E-mail</label>
+                                    @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" id="cis" placeholder="CIS" required pattern="[0-9]{5}">
-                                        <label for="cis"><i class="bi bi-card-text"></i> CIS</label>
-                                        <div class="invalid-feedback">
-                                            Por favor, informe um CIS válido.
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <input type="email" class="form-control" id="email" placeholder="E-mail" required>
-                                        <label for="email"><i class="bi bi-envelope"></i> E-mail</label>
-                                        <div class="invalid-feedback">
-                                            Por favor, informe um e-mail válido.
-                                        </div>
-                                    </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="password" class="form-control @error('senha') is-invalid @enderror" id="senha" name="senha" placeholder="Senha" required minlength="8">
+                                    <label for="senha"><i class="bi bi-lock"></i> Senha</label>
+                                    @error('senha')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="password" class="form-control" id="confirmarSenha" name="senha_confirmation" placeholder="Confirmar Senha" required>
+                                    <label for="confirmarSenha"><i class="bi bi-lock-fill"></i> Confirmar Senha</label>
+                                </div>
+                            </div>
+                        </div>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <input type="password" class="form-control" id="senha" placeholder="Senha" required minlength="8">
-                                        <label for="senha"><i class="bi bi-lock"></i> Senha</label>
-                                        <div class="invalid-feedback">
-                                            A senha deve ter pelo menos 8 caracteres.
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <input type="password" class="form-control" id="confirmarSenha" placeholder="Confirmar Senha" required>
-                                        <label for="confirmarSenha"><i class="bi bi-lock-fill"></i> Confirmar Senha</label>
-                                        <div class="invalid-feedback">
-                                            As senhas não coincidem.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="d-grid gap-2 mb-3">
+                            <button class="btn btn-dark" type="submit">Criar Conta</button>
+                        </div>
 
-                            <div class="d-grid gap-2 mb-3">
-                                <button class="btn btn-dark" type="submit">
-                                    Criar Conta
-                                </button>
-                            </div>
-
-                            <div class="text-center">
-                                <p>Já tem uma conta? <a href="{{ url('/admin/login') }}" id="linkLogin">Fazer login</a></p>
-                            </div>
-                        </form>
-                    </div>
+                        <div class="text-center">
+                            <p>Já tem uma conta? <a href="{{ url('/admin/login') }}">Fazer login</a></p>
+                        </div>
+                    </form>
                 </div>
+            </div>
 
-                <div class="text-center mt-4">
-                    <p class="text-muted">Sistema para registro de ocorrências de avarias</p>
-                </div>
+            <div class="text-center mt-4">
+                <p class="text-muted">Sistema para registro de ocorrências de avarias</p>
             </div>
         </div>
     </div>
-
-    <script>
-        // Validação de CIS
-        document.getElementById('cis').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-
-            if (value.length > 5) value = value.slice(0, 5);
-            e.target.value = value;
-        });
-
-        // Validação de confirmação de senha
-        const senhaInput = document.getElementById('senha');
-        const confirmarSenhaInput = document.getElementById('confirmarSenha');
-
-        function validarSenhas() {
-            if (senhaInput.value !== confirmarSenhaInput.value) {
-                confirmarSenhaInput.setCustomValidity('As senhas não coincidem');
-            } else {
-                confirmarSenhaInput.setCustomValidity('');
-            }
-        }
-
-        senhaInput.addEventListener('change', validarSenhas);
-        confirmarSenhaInput.addEventListener('keyup', validarSenhas);
-
-        // Validação do formulário
-        document.getElementById('cadastroForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            if (!this.checkValidity()) {
-                event.stopPropagation();
-                this.classList.add('was-validated');
-                return;
-            }
-
-            // Simulação de cadastro bem-sucedido
-            alert('CONTA CRIADA COM SUCESSO!');
-            // Redireciona para a página de login após 1 segundo
-            setTimeout(function() {
-                window.location.href = '{{ url('/admin/login') }}';
-            }, 1000);
-        });
-    </script>
+</div>
 </body>
 </html>
