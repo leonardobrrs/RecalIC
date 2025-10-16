@@ -22,9 +22,9 @@ class AuthController extends Controller
     {
         $request->validate([
             'nomeCompleto' => 'required|string|max:255',
-            'cpf' => 'required|string|unique:users,cpf_cis',
-            'email' => 'required|string|email|max:255|unique:users',
-            'senha' => 'required|string|min:8|confirmed',
+            'cpf' => 'required|string|min:11|max:11|unique:users,cpf_cis',
+            'email' => 'required|string|email|min:10|max:255|unique:users',
+            'senha' => 'required|string|min:8|max:255|confirmed',
         ]);
 
         $user = User::create([
@@ -36,7 +36,7 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
-        return redirect()->route('user.dashboard');
+        return redirect()->route('login');
     }
 
     public function login(Request $request)
@@ -47,7 +47,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
-            return redirect()->intended(route('user.dashboard'));
+            return redirect()->intended(route('login'));
         }
 
         return back()->withErrors(['email' => 'As credenciais fornecidas não correspondem aos nossos registros.'])->onlyInput('email');
@@ -68,9 +68,9 @@ class AuthController extends Controller
         // 1. Validação dos dados (similar, mas com 'cis')
         $request->validate([
             'nomeCompleto' => 'required|string|max:255',
-            'cis' => 'required|string|unique:users,cpf_cis', // Valida o campo 'cis'
-            'email' => 'required|string|email|max:255|unique:users',
-            'senha' => 'required|string|min:8|confirmed',
+            'cis' => 'required|string|min:5|max:5|unique:users,cpf_cis', // Valida o campo 'cis'
+            'email' => 'required|string|email|min:10|max:255|unique:users',
+            'senha' => 'required|string|min:8|max:255|confirmed',
         ]);
 
         // 2. Criação do usuário com o 'role' de 'admin'
@@ -100,7 +100,7 @@ class AuthController extends Controller
             // 4. VERIFICA SE O USUÁRIO LOGADO É UM ADMINISTRADOR
             if (Auth::user()->role === 'admin') {
                 $request->session()->regenerate();
-                return redirect()->intended(route('admin.dashboard'));
+                return redirect()->intended(route('admin.login'));
             }
 
             // Se for um usuário comum tentando logar aqui, faz o logout e retorna um erro
