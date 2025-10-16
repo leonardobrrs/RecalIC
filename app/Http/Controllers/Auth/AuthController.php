@@ -47,7 +47,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
-            return redirect()->intended(route('login'));
+            return redirect()->intended(route('user.dashboard'));
         }
 
         return back()->withErrors(['email' => 'As credenciais fornecidas não correspondem aos nossos registros.'])->onlyInput('email');
@@ -100,7 +100,7 @@ class AuthController extends Controller
             // 4. VERIFICA SE O USUÁRIO LOGADO É UM ADMINISTRADOR
             if (Auth::user()->role === 'admin') {
                 $request->session()->regenerate();
-                return redirect()->intended(route('admin.login'));
+                return redirect()->intended(route('admin.dashboard'));
             }
 
             // Se for um usuário comum tentando logar aqui, faz o logout e retorna um erro
