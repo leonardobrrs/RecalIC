@@ -231,13 +231,5 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const occurrenceList = document.querySelector('.occurrence-list');
-        const sortToggleButton = document.getElementById('sort-toggle-btn');
-        // ... (lógica de ordenação e clique nos cards continua a mesma)
-    });
-</script>
 </body>
 </html>
