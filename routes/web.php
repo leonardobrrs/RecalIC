@@ -49,3 +49,5 @@ Route::post('/admin/cadastro', [AuthController::class, 'adminRegister']);
 Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 Route::get('/admin/ocorrencias/{id}', [AdminController::class, 'showOcorrencia'])->name('admin.ocorrencias.show');
 Route::get('/admin/relatorios', [AdminController::class, 'relatorios'])->name('admin.relatorios');
+
+Route::post('/admin/logout', [AuthController::class, 'adminLogout'])->name('admin.logout');

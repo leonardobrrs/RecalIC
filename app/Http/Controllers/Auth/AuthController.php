@@ -110,4 +110,13 @@ class AuthController extends Controller
         // 5. Se falhar, volta para o login com uma mensagem de erro
         return back()->withErrors(['email' => 'Credenciais de administrador inválidas.'])->onlyInput('email');
     }
+
+    public function adminLogout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('admin.login');
+    }
 }
