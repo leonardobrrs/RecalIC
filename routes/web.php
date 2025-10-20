@@ -30,8 +30,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/dashboard', [OcorrenciaController::class, 'index'])->name('user.dashboard');
 Route::get('/ocorrencias/registrar', [OcorrenciaController::class, 'create'])->name('ocorrencias.create');
 
-// ROTA ADICIONADA: PARA SALVAR A NOVA OCORRÊNCIA                                                                    // até 5 ocorrências a cada 60 minutos
-Route::post('/ocorrencias/registrar', [OcorrenciaController::class, 'store'])->name('ocorrencias.store')->middleware('throttle:5,10');
+// ROTA ADICIONADA: PARA SALVAR A NOVA OCORRÊNCIA                                                     até 3 ocorrências a cada 60 minutos
+Route::post('/ocorrencias/registrar', [OcorrenciaController::class, 'store'])->name('ocorrencias.store')->middleware('throttle:3,60');
 
 Route::get('/ocorrencias/{id}', [OcorrenciaController::class, 'show'])->name('ocorrencias.show');
 Route::get('/ocorrencias/{id}/historico', [OcorrenciaController::class, 'historico'])->name('ocorrencias.historico');
