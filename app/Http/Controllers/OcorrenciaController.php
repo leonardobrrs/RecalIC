@@ -41,7 +41,8 @@ class OcorrenciaController extends Controller
             'categoria' => 'required|string|max:255',
             'patrimonio_id' => 'nullable|string|max:255',
             'descricao' => 'required|string',
-            'anexos.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048' // Valida cada anexo
+            'anexos' => 'nullable|array|max:4', // Até 4 imagens
+            'anexos.*' => 'image|mimes:jpeg,png,jpg|max:2048' // Limite 2MB por imagem
         ]);
 
         // 2. Cria a ocorrência principal
