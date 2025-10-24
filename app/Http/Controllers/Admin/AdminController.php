@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Ocorrencia;
+use App\Models\StatusHistorico;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
     /**
      * Exibe o dashboard principal do administrador com todas as ocorrências.
-     * AGORA COM LÓGICA DE FILTRO E ORDENAÇÃO.
      */
     public function dashboard(Request $request)
     {
@@ -33,13 +35,11 @@ class AdminController extends Controller
             });
         }
 
-        // --- NOVA LÓGICA DE ORDENAÇÃO ---
         // Verifica se o parâmetro 'sort' foi enviado, senão, usa 'desc' (mais recentes) como padrão.
         $sortDirection = $request->input('sort', 'desc');
 
         // Aplica a ordenação pela data de criação
         $query->orderBy('created_at', $sortDirection);
-        // --- FIM DA NOVA LÓGICA ---
 
         // Executa a query com os filtros e ordenação
         $ocorrencias = $query->get();
@@ -53,8 +53,58 @@ class AdminController extends Controller
 
     public function showOcorrencia(string $id)
     {
-        $ocorrencia = Ocorrencia::findOrFail($id);
+        // 1. Busca a ocorrência pelo ID
+        // 2. 'with()' carrega os relacionamentos:
+        //    'anexos' -> busca todas as fotos na tabela 'ocorrencia_anexos'
+        //    'historico.admin' -> busca o histórico E o nome do admin que fez a alteração
+        $ocorrencia = Ocorrencia::with(['anexos', 'historico.admin'])
+                                ->findOrFail($id);
+
+        // 3. Retorna a view e passa a ocorrência completa com seus relacionamentos
         return view('DashboardAdmin.registros', ['ocorrencia' => $ocorrencia]);
+    }
+
+    /**
+     * Atualiza o status de uma ocorrência e registra no histórico.
+     */
+    public function updateOcorrenciaStatus(Request $request, string $id)
+    {
+        // 1. Encontra a ocorrência ou falha (erro 404 se não existir)
+        $ocorrencia = Ocorrencia::findOrFail($id);
+
+        // 2. Valida os dados recebidos do formulário
+        $validatedData = $request->validate([
+            'status' => [ // Valida o campo 'status'
+                'required', // É obrigatório
+                Rule::in(['Aberto', 'Em Análise', 'Resolvido', 'Inválido']), // Deve ser um dos valores permitidos
+            ],
+            'comentario' => 'nullable|string|max:1000', // Comentário é opcional
+        ]);
+
+        // Guarda o status antigo para o histórico
+        $statusAnterior = $ocorrencia->status;
+
+        // 3. Cria o registro no histórico ANTES de atualizar a ocorrência
+        StatusHistorico::create([
+            'ocorrencia_id' => $ocorrencia->id,
+            'user_id' => Auth::id(), // ID do administrador logado
+            'status_anterior' => $statusAnterior,
+            'status_novo' => $validatedData['status'],
+            'comentario' => $validatedData['comentario'],
+        ]);
+
+        // 4. Atualiza o status na ocorrência principal
+        $ocorrencia->status = $validatedData['status'];
+        $ocorrencia->save();
+
+        // 5. Redireciona de volta para a página de detalhes com mensagem de sucesso
+        return redirect()->route('admin.ocorrencias.show', $ocorrencia->id)
+                         ->with('success', 'Status da ocorrência atualizado com sucesso!');
+    }
+
+    public function destroyOcorrencia(string $id)
+    {
+        // Lógica de exclusão será implementada na Semana 3 (outra tarefa)
     }
 
     public function relatorios()

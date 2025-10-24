@@ -173,6 +173,7 @@
                             <option value="Aberto" {{ request('status') == 'Aberto' ? 'selected' : '' }}>Em Aberto</option>
                             <option value="Em Análise" {{ request('status') == 'Em Análise' ? 'selected' : '' }}>Em Análise</option>
                             <option value="Resolvido" {{ request('status') == 'Resolvido' ? 'selected' : '' }}>Resolvido</option>
+                            <option value="Inválido" {{ request('status') == 'Inválido' ? 'selected' : '' }}>Inválido</option>
                         </select>
                     </div>
                     <div class="col-md-4">

@@ -51,3 +51,8 @@ Route::get('/admin/ocorrencias/{id}', [AdminController::class, 'showOcorrencia']
 Route::get('/admin/relatorios', [AdminController::class, 'relatorios'])->name('admin.relatorios');
 
 Route::post('/admin/logout', [AuthController::class, 'adminLogout'])->name('admin.logout');
+
+// NOVA ROTA PUT PARA ATUALIZAR O STATUS
+Route::put('/admin/ocorrencias/{id}/status', [AdminController::class, 'updateOcorrenciaStatus'])->name('admin.ocorrencias.updateStatus');
+
+Route::get('/admin/relatorios', [AdminController::class, 'relatorios'])->name('admin.relatorios');

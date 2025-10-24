@@ -32,41 +32,38 @@
 
     <div class="container">
         <div class="card mb-4">
-            <div class="card-header fw-bold">Status Atual: Em Aberto</div>
+            <div class="card-header fw-bold">Status Atual: {{ $ocorrencia->status }}</div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-7">
                         <div class="row mb-3 align-items-center">
                             <div class="col-sm-4"><label class="form-label fw-semibold">Localização:</label></div>
-                            <div class="col-sm-8"><p class="form-control-plaintext mb-0">Laboratório 01</p></div>
+                            <div class="col-sm-8"><p class="form-control-plaintext mb-0">{{ $ocorrencia->localizacao }}</p></div>
                         </div>
                         <div class="row mb-3 align-items-center">
                             <div class="col-sm-4"><label class="form-label fw-semibold">Categoria:</label></div>
-                            <div class="col-sm-8"><p class="form-control-plaintext mb-0">Eletrônico</p></div>
+                            <div class="col-sm-8"><p class="form-control-plaintext mb-0">{{ $ocorrencia->categoria }}</p></div>
                         </div>
                         <div class="row mb-3 align-items-center">
                             <div class="col-sm-4"><label class="form-label fw-semibold">Código do Patrimônio:</label></div>
-                            <div class="col-sm-8"><p class="form-control-plaintext mb-0">123456789</p></div>
+                            <div class="col-sm-8"><p class="form-control-plaintext mb-0">{{ $ocorrencia->patrimonio_id ?? 'N/A' }}</p></div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-sm-4"><label class="form-label fw-semibold">Descrição Detalhada:</label></div>
-                            <div class="col-sm-8"><p class="form-control-plaintext mb-0" style="min-height: 80px;">O monitor do computador ao lado da janela na fileira 4 não está funcionando.</p></div>
+                            <div class="col-sm-8"><p class="form-control-plaintext mb-0" style="min-height: 80px;">{{ $ocorrencia->descricao }}</p></div>
                         </div>
                     </div>
                     <div class="col-md-5">
                         <div class="row g-2">
-                            <div class="col-6">
-                                <img src="{{ asset('assets/foto1.jpg') }}" alt="Foto 1 do relato" class="img-thumbnail thumbnail-img thumbnail-clicavel" data-bs-toggle="modal" data-bs-target="#imagemModal">
-                            </div>
-                            <div class="col-6">
-                                <img src="{{ asset('assets/foto2.jpg') }}" alt="Foto 2 do relato" class="img-thumbnail thumbnail-img thumbnail-clicavel" data-bs-toggle="modal" data-bs-target="#imagemModal">
-                            </div>
-                            <div class="col-6">
-                                <img src="{{ asset('assets/foto3.jpg') }}" alt="Foto 3 do relato" class="img-thumbnail thumbnail-img thumbnail-clicavel" data-bs-toggle="modal" data-bs-target="#imagemModal">
-                            </div>
-                            <div class="col-6">
-                                <img src="{{ asset('assets/foto4.jpg') }}" alt="Foto 4 do relato" class="img-thumbnail thumbnail-img thumbnail-clicavel" data-bs-toggle="modal" data-bs-target="#imagemModal">
-                            </div>
+                            @forelse ($ocorrencia->anexos as $anexo)
+                                <div class="col-6">
+                                    <img src="{{ Storage::url($anexo->file_path) }}" alt="Anexo da ocorrência" class="img-thumbnail thumbnail-img thumbnail-clicavel" data-bs-toggle="modal" data-bs-target="#imagemModal">
+                                </div>
+                            @empty
+                                <div class="col-12">
+                                    <p class="text-muted">Nenhum anexo enviado para esta ocorrência.</p>
+                                </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -90,20 +87,23 @@
         <div class="card mb-4">
             <div class="card-header fw-bold">Ações Administrativas</div>
             <div class="card-body">
-                <form id="formAcoesAdmin">
-                    <div class="row mb-3 align-items-center">
+                <form id="formAcoesAdmin" action="{{ route('admin.ocorrencias.updateStatus', $ocorrencia->id) }}" method="POST">
+                    @csrf @method('PUT') <div class="row mb-3 align-items-center">
                         <div class="col-md-3"><label class="form-label fw-semibold">Alterar Status:</label></div>
                         <div class="col-md-9">
-                            <select class="form-select" required>
-                                <option selected disabled value="">Selecione um novo status...</option>
-                                <option value="analise">Em análise</option>
-                                <option value="finalizado">Finalizado</option>
+                            <select class="form-select" name="status" required>
+                                <option disabled value="">Selecione um novo status...</option> <option value="Aberto" {{ $ocorrencia->status == 'Aberto' ? 'selected' : '' }}>Aberto</option>
+                                <option value="Em Análise" {{ $ocorrencia->status == 'Em Análise' ? 'selected' : '' }}>Em Análise</option>
+                                <option value="Resolvido" {{ $ocorrencia->status == 'Resolvido' ? 'selected' : '' }}>Resolvido</option>
+                                <option value="Inválido" {{ $ocorrencia->status == 'Inválido' ? 'selected' : '' }}>Inválido</option>
                             </select>
                         </div>
                     </div>
                     <div class="row mb-3 align-items-center">
                         <div class="col-md-3"><label class="form-label fw-semibold">Adicionar Comentário:</label></div>
-                        <div class="col-md-9"><textarea class="form-control" placeholder="Adicione um comentário sobre a atualização..." rows="3" required></textarea></div>
+                        <div class="col-md-9">
+                            <textarea class="form-control" name="comentario" placeholder="Adicione um comentário sobre a atualização (opcional)..." rows="3"></textarea>
+                        </div>
                     </div>
                     <div class="row mt-4">
                         <div class="col d-flex justify-content-end">
@@ -113,68 +113,74 @@
                 </form>
             </div>
         </div>
-    </div>
 
-    <div class="modal fade" id="historicoModal" tabindex="-1" aria-labelledby="historicoModalLabel" aria-hidden="true">
+        @if(session('success'))
+            <div class="alert alert-success mt-3">
+                {{ session('success') }}
+            </div>
+        @endif
+    </div> <div class="modal fade" id="historicoModal" tabindex="-1" aria-labelledby="historicoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header"><h5 class="modal-title" id="historicoModalLabel">Histórico da Ocorrência</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-                <div class="modal-body"><ul class="list-group"><li class="list-group-item d-flex justify-content-between align-items-center"><div><span class="badge bg-success me-2">Resolvido</span>Técnico Fulano da Silva adicionou um comentário: "Reparo finalizado."</div><small class="text-muted">03/09/2025 - 14:30</small></li><li class="list-group-item d-flex justify-content-between align-items-center"><div><span class="badge bg-primary me-2">Em Análise</span>O status foi alterado.</div><small class="text-muted">02/09/2025 - 09:15</small></li><li class="list-group-item d-flex justify-content-between align-items-center"><div><span class="badge bg-secondary me-2">Aberto</span>Ocorrência criada pelo usuário.</div><small class="text-muted">01/09/2025 - 17:45</small></li></ul></div>
+                <div class="modal-body">
+                    <ul class="list-group">
+                        @forelse ($ocorrencia->historico->sortByDesc('created_at') as $historico)
+                            <li class="list-group-item">
+                                <div>
+                                    <span class="badge bg-primary me-2">{{ $historico->status_novo }}</span>
+                                    @if ($historico->comentario)
+                                        <strong>{{ $historico->admin->name ?? 'Admin' }}</strong> comentou: "{{ $historico->comentario }}"
+                                    @else
+                                        O status foi alterado por <strong>{{ $historico->admin->name ?? 'Admin' }}</strong>.
+                                    @endif
+                                </div>
+                                <small class="text-muted">{{ $historico->created_at->format('d/m/Y - H:i') }}</small>
+                            </li>
+                        @empty
+                            <li class="list-group-item">Nenhum histórico de status para esta ocorrência.</li>
+                        @endforelse
+                    </ul>
+                </div>
                 <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button></div>
             </div>
         </div>
     </div>
 
     <div class="modal fade" id="imagemModal" tabindex="-1" aria-labelledby="imagemModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-          <div class="modal-body p-0">
-            <img id="imagemExpandida" src="" class="img-fluid w-100" alt="Imagem expandida do relato">
-          </div>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <img id="imagemExpandida" src="" class="img-fluid w-100" alt="Imagem expandida do relato">
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-
         document.addEventListener('DOMContentLoaded', function() {
-
-            // Lógica para o botão de EXCLUIR OCORRÊNCIA
+            // Lógica para o botão de EXCLUIR OCORRÊNCIA (mantida)
             const excluirBtn = document.getElementById('excluirBtn');
             if(excluirBtn) {
                 excluirBtn.addEventListener('click', function() {
-                    const confirmacao = confirm('Tem certeza que deseja excluir esta ocorrência? Esta ação não pode ser desfeita.');
-                    if (confirmacao) {
-                        alert('A ocorrência foi excluída com sucesso!');
+                    if (confirm('Tem certeza que deseja excluir esta ocorrência? Esta ação não pode ser desfeita.')) {
+                        // Futuro: Implementar exclusão via backend com método DELETE
+                        alert('A ocorrência foi excluída com sucesso! (Simulação)');
                         window.location.href = '{{ url('/admin/dashboard') }}';
                     }
                 });
             }
 
-            // Lógica para o formulário de AÇÕES ADMINISTRATIVAS
-            const formAcoesAdmin = document.getElementById('formAcoesAdmin');
-            if(formAcoesAdmin) {
-                formAcoesAdmin.addEventListener('submit', function(event) {
-                    event.preventDefault();
-                    alert('ALTERAÇÕES SALVAS COM ÊXITO!');
-                    setTimeout(function(){
-                        window.location.href = '{{ url('/admin/dashboard') }}';
-                    }, 1000);
-                });
-            }
-
-            // Lógica para EXPANDIR A IMAGEM NO MODAL
+            // Lógica para EXPANDIR A IMAGEM NO MODAL (mantida)
             const thumbnails = document.querySelectorAll('.thumbnail-clicavel');
             const imagemNoModal = document.getElementById('imagemExpandida');
-
             thumbnails.forEach(function(thumb) {
                 thumb.addEventListener('click', function() {
                     const imgSrc = this.getAttribute('src');
                     imagemNoModal.setAttribute('src', imgSrc);
                 });
             });
-
         });
     </script>
 </body>
