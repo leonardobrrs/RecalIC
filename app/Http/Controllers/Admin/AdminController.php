@@ -83,18 +83,33 @@ class AdminController extends Controller
 
         // Guarda o status antigo para o histórico
         $statusAnterior = $ocorrencia->status;
+        $novoStatus = $validatedData['status'];
 
         // 3. Cria o registro no histórico ANTES de atualizar a ocorrência
         StatusHistorico::create([
             'ocorrencia_id' => $ocorrencia->id,
             'user_id' => Auth::id(), // ID do administrador logado
             'status_anterior' => $statusAnterior,
-            'status_novo' => $validatedData['status'],
+            'status_novo' => $novoStatus,
             'comentario' => $validatedData['comentario'],
         ]);
 
         // 4. Atualiza o status na ocorrência principal
-        $ocorrencia->status = $validatedData['status'];
+        $ocorrencia->status = $novoStatus;
+
+        // --- NOVA LÓGICA DE PENALIDADE ---
+        // Verifica se o novo status é 'Inválido' e se o status anterior não era 'Inválido' (para não penalizar múltiplas vezes)
+        if ($novoStatus === 'Inválido' && $statusAnterior !== 'Inválido') {
+            // Busca o usuário relator
+            $relator = $ocorrencia->relator; // Usa o relacionamento que já existe
+            if ($relator) {
+                // Diminui a pontuação (ajuste o valor da penalidade conforme necessário)
+                $relator->reputation_score -= 10;
+                $relator->save(); // Salva a alteração no usuário
+            }
+        }
+        // --- FIM DA NOVA LÓGICA ---
+
         $ocorrencia->save();
 
         // 5. Redireciona de volta para a página de detalhes com mensagem de sucesso

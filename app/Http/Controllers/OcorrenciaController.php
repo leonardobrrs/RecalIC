@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Ocorrencia;
 use App\Models\OcorrenciaAnexo;
+use App\Models\Avaliacao; // Importar o Model Avaliacao
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule; // Para validação in
 
 class OcorrenciaController extends Controller
 {
@@ -87,5 +89,37 @@ class OcorrenciaController extends Controller
         $ocorrencia = Ocorrencia::findOrFail($id);
 
         return view('DashboardUsuario.detalhesRelato', ['ocorrencia' => $ocorrencia]);
+    }
+
+    public function storeAvaliacao(Request $request, string $id)
+    {
+        // 1. Encontra a ocorrência ou falha
+        $ocorrencia = Ocorrencia::findOrFail($id);
+
+        // 2. Verifica as permissões
+        //    - O usuário logado é o dono da ocorrência?
+        //    - O status é 'Resolvido'?
+        //    - Já existe uma avaliação para esta ocorrência?
+        if ($ocorrencia->user_id !== Auth::id() || $ocorrencia->status !== 'Resolvido' || $ocorrencia->avaliacao()->exists()) {
+            // Se alguma condição falhar, redireciona com erro (ou pode lançar uma exceção 403 Forbidden)
+            return redirect()->route('ocorrencias.show', $id)->withErrors(['avaliacao' => 'Não é possível avaliar esta ocorrência.']);
+        }
+
+        // 3. Valida os dados do formulário de avaliação
+        $validatedData = $request->validate([
+            'nota' => ['required', 'integer', Rule::in([1, 2, 3, 4, 5])], // Nota obrigatória de 1 a 5
+            'comentario' => 'nullable|string|max:500', // Comentário opcional
+        ]);
+
+        // 4. Cria a avaliação no banco de dados
+        Avaliacao::create([
+            'ocorrencia_id' => $ocorrencia->id,
+            'user_id' => Auth::id(),
+            'nota' => $validatedData['nota'],
+            'comentario' => $validatedData['comentario'],
+        ]);
+
+        // 5. Redireciona de volta para a página de detalhes com mensagem de sucesso
+        return redirect()->route('ocorrencias.show', $id)->with('success', 'Avaliação registrada com sucesso!');
     }
 }

@@ -20,47 +20,73 @@
     </style>
 </head>
 <body>
-    <div class="d-flex">
-        <div class="sidebar">
-            <div class="profile-avatar">U</div>
-            <h5>Usuário</h5>
-            <a href="{{ url('/dashboard') }}" class="nav-button">Meus Relatos</a>
-            <a href="{{ url('/ocorrencias/registrar') }}" class="nav-button">Registrar nova ocorrência</a>
-            <div class="sidebar-footer">
-                <a href="{{ url('/') }}" class="logout-button">
+<div class="d-flex">
+    <div class="sidebar">
+        <div class="profile-avatar">U</div>
+        <h5>Usuário</h5>
+        <a href="{{ url('/dashboard') }}" class="nav-button">Meus Relatos</a>
+        <a href="{{ url('/ocorrencias/registrar') }}" class="nav-button">Registrar nova ocorrência</a>
+        <div class="sidebar-footer">
+            <form action="{{ url('/logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="logout-button">
                     <i class="bi bi-power" style="font-size: 1.5rem;"></i>
                     <span>Sair</span>
-                </a>
-            </div>
-        </div>
-
-        <div class="main-content flex-grow-1">
-            <div class="card shadow-sm border-0" style="border-radius: 15px;">
-                <div class="card-body p-4">
-                    <h2 class="card-title mb-4">Histórico da Ocorrência (ID: 0002)</h2>
-
-                    <p><strong>Status:</strong></p>
-
-                    <div class="progress mb-4" style="height: 30px; font-size: 1rem;">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 33.33%" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100">
-                            Aberto
-                        </div>
-                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 33.33%" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100">
-                            Em Análise
-                        </div>
-                    </div>
-
-                    <p><strong>Atualizações:</strong></p>
-                    <ul class="list-group">
-                        <li class="list-group-item"><strong>22/08/2025:</strong> Status alterado para "Em Análise".</li>
-                        <li class="list-group-item"><strong>22/08/2025:</strong> Relato recebido e registrado com o status "Aberto".</li>
-                    </ul>
-                </div>
-            </div>
-            <a href="{{ url('/ocorrencias/relato') }}" class="btn btn-secondary mt-4">
-                <i class="bi bi-arrow-left"></i> Voltar para os Detalhes
-            </a>
+                </button>
+            </form>
         </div>
     </div>
+
+    <div class="main-content flex-grow-1">
+        <div class="card shadow-sm border-0" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <h2 class="card-title mb-4">Histórico da Ocorrência (ID: {{ str_pad($ocorrencia->id, 4, '0', STR_PAD_LEFT) }})</h2>
+
+                <p><strong>Status:</strong></p>
+
+                @php
+                    $status = $ocorrencia->status;
+                    $progressWidth = 0;
+                    $progressClass = 'bg-danger';
+                    if ($status == 'Aberto') {
+                        $progressWidth = 33;
+                        $progressClass = 'bg-danger';
+                    } elseif ($status == 'Em Análise') {
+                        $progressWidth = 66;
+                        $progressClass = 'bg-warning text-dark';
+                    } elseif (in_array($status, ['Resolvido', 'Fechado', 'Inválido'])) {
+                        $progressWidth = 100;
+                        $progressClass = 'bg-success';
+                    }
+                @endphp
+                <div class="progress mb-4" style="height: 30px; font-size: 1rem;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated {{ $progressClass }}" role="progressbar" style="width: {{ $progressWidth }}%" aria-valuenow="{{ $progressWidth }}" aria-valuemin="0" aria-valuemax="100">
+                        {{ $status }}
+                    </div>
+                </div>
+
+                <p><strong>Atualizações:</strong></p>
+                <ul class="list-group">
+                    @forelse ($ocorrencia->historico->sortByDesc('created_at') as $historico)
+                        <li class="list-group-item">
+                            <strong>{{ $historico->created_at->format('d/m/Y - H:i') }}:</strong>
+                            @if ($historico->comentario)
+                                O status foi alterado para "{{ $historico->status_novo }}" pelo administrador com o seguinte comentário: <em>"{{ $historico->comentario }}"</em>
+                            @else
+                                Status alterado para "{{ $historico->status_novo }}".
+                            @endif
+                        </li>
+                    @empty
+                        <li class="list-group-item">Nenhum histórico de atualizações para esta ocorrência.</li>
+                    @endforelse
+                    <li class="list-group-item"><strong>{{ $ocorrencia->created_at->format('d/m/Y - H:i') }}:</strong> Relato recebido e registrado com o status "Aberto".</li>
+                </ul>
+            </div>
+        </div>
+        <a href="{{ route('ocorrencias.show', $ocorrencia->id) }}" class="btn btn-secondary mt-4">
+            <i class="bi bi-arrow-left"></i> Voltar para os Detalhes
+        </a>
+    </div>
+</div>
 </body>
 </html>
