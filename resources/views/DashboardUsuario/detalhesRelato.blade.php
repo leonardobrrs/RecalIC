@@ -22,8 +22,8 @@
 <body>
 <div class="d-flex">
     <div class="sidebar">
-        <div class="profile-avatar">U</div>
-        <h5>Usuário</h5>
+        <div class="profile-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+        <h5>{{ explode(' ', auth()->user()->name)[0] }}</h5>
         <a href="{{ url('/dashboard') }}" class="nav-button">Meus Relatos</a>
         <a href="{{ url('/ocorrencias/registrar') }}" class="nav-button">Registrar nova ocorrência</a>
         <div class="sidebar-footer">

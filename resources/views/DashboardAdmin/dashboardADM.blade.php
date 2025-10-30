@@ -146,8 +146,8 @@
 <body>
 <div class="d-flex">
     <div class="sidebar">
-        <div class="profile-avatar">A</div>
-        <h5>Administrador</h5>
+        <div class="profile-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+        <h5>{{ explode(' ', auth()->user()->name)[0] }}</h5>
         <a href="{{ url('/admin/dashboard') }}" class="nav-button">Ocorrências</a>
         <a href="{{ url('/admin/relatorios') }}" class="nav-button">Relatórios</a>
         <div class="sidebar-footer">
