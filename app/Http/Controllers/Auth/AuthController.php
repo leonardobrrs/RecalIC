@@ -28,7 +28,7 @@ class AuthController extends Controller
         ]);
 
         $user = User::create([
-            'name' => $request->nomeCompleto,
+            'name' => strtoupper($request->nomeCompleto),
             'email' => $request->email,
             'cpf_cis' => $request->cpf,
             'password' => Hash::make($request->senha),
@@ -75,7 +75,7 @@ class AuthController extends Controller
 
         // 2. Criação do usuário com o 'role' de 'admin'
         $user = User::create([
-            'name' => $request->nomeCompleto,
+            'name' => strtoupper($request->nomeCompleto),
             'email' => $request->email,
             'cpf_cis' => $request->cis, // Salva o CIS
             'password' => Hash::make($request->senha),
