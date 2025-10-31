@@ -22,7 +22,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'nomeCompleto' => 'required|string|max:255',
-            'cpf' => 'required|string|min:11|max:11|unique:users,cpf_cis',
+            'cpf' => ['required', 'string', 'unique:users,cpf_cis', 'cpf'],
             'email' => 'required|string|email|min:10|max:255|unique:users',
             'senha' => 'required|string|min:8|max:255|confirmed',
         ]);
@@ -30,7 +30,7 @@ class AuthController extends Controller
         $user = User::create([
             'name' => strtoupper($request->nomeCompleto),
             'email' => $request->email,
-            'cpf_cis' => $request->cpf,
+            'cpf_cis' => preg_replace('/[^0-9]/', '', $request->cpf),
             'password' => Hash::make($request->senha),
             'role' => 'relator',
         ]);
