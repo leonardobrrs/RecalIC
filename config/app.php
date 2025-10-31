@@ -78,11 +78,11 @@ return [
     |
     */
 
-    'locale' => 'APP_LOCALE', 'pt_BR',
+    'locale' => 'APP_LOCALE', 'en',
 
-    'fallback_locale' => 'APP_FALLBACK_LOCALE', 'pt_BR',
+    'fallback_locale' => 'APP_FALLBACK_LOCALE', 'en',
 
-    'faker_locale' => 'APP_FAKER_LOCALE', 'pt_BR',
+    'faker_locale' => 'APP_FAKER_LOCALE', 'en',
 
     /*
     |--------------------------------------------------------------------------

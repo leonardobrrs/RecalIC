@@ -71,6 +71,9 @@ class AuthController extends Controller
             'cis' => 'required|string|in:'.env('ADMIN_CIS_CODE'), // Validação do CIS (.env)
             'email' => 'required|string|email|min:10|max:255|unique:users',
             'senha' => 'required|string|min:8|max:255|confirmed',
+        ], [
+            'cis.in' => 'Código inválido',
+            'senha.confirmed' => 'Senhas não coincidem',
         ]);
 
         // 2. Criação do usuário com o 'role' de 'admin'
