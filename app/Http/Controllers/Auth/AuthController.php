@@ -23,8 +23,11 @@ class AuthController extends Controller
         $request->validate([
             'nomeCompleto' => 'required|string|max:255',
             'cpf' => ['required', 'string', 'unique:users,cpf_cis', 'cpf'],
-            'email' => 'required|string|email|min:10|max:255|unique:users',
+            'email' => ['required', 'string', 'email', 'min:10', 'max:255', 'unique:users', 'ends_with:@ic.ufal.br'],
             'senha' => 'required|string|min:8|max:255|confirmed',
+        ], [
+            'senha.confirmed' => 'Senhas não coincidem',
+            'email.ends_with' => 'Apenas o e-mail institucional é permitido',
         ]);
 
         $user = User::create([
@@ -69,11 +72,12 @@ class AuthController extends Controller
         $request->validate([
             'nomeCompleto' => 'required|string|max:255',
             'cis' => 'required|string|in:'.env('ADMIN_CIS_CODE'), // Validação do CIS (.env)
-            'email' => 'required|string|email|min:10|max:255|unique:users',
+            'email' => ['required', 'string', 'email', 'min:10', 'max:30', 'unique:users', 'ends_with:@ic.ufal.br'],
             'senha' => 'required|string|min:8|max:255|confirmed',
         ], [
             'cis.in' => 'Código inválido',
             'senha.confirmed' => 'Senhas não coincidem',
+            'email.ends_with' => 'Apenas o e-mail institucional é permitido',
         ]);
 
         // 2. Criação do usuário com o 'role' de 'admin'
