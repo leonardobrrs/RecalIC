@@ -50,13 +50,16 @@
                     $progressClass = 'bg-danger';
                     if ($status == 'Aberto') {
                         $progressWidth = 33;
-                        $progressClass = 'bg-danger';
+                        $progressClass = 'bg-primary';
                     } elseif ($status == 'Em Análise') {
                         $progressWidth = 66;
-                        $progressClass = 'bg-warning text-dark';
-                    } elseif (in_array($status, ['Resolvido', 'Fechado', 'Inválido'])) {
+                        $progressClass = 'bg-warning';
+                    } elseif (in_array($status, ['Resolvido'])) {
                         $progressWidth = 100;
                         $progressClass = 'bg-success';
+                    } elseif ($status == 'Inválido') {
+                        $progressWidth = 100;
+                        $progressClass = 'bg-danger';
                     }
                 @endphp
                 <div class="progress mb-4" style="height: 30px; font-size: 1rem;">
