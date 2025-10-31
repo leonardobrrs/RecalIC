@@ -39,7 +39,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <input type="text" class="form-control @error('cis') is-invalid @enderror" id="cis" name="cis" placeholder="CIS" value="{{ old('cis') }}" required>
+                                    <input type="password" class="form-control @error('cis') is-invalid @enderror" id="cis" name="cis" placeholder="CIS" value="{{ old('cis') }}" required>
                                     <label for="cis"><i class="bi bi-card-text"></i> CIS</label>
                                     @error('cis')
                                     <div class="invalid-feedback">{{ $message }}</div>

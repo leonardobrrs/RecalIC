@@ -68,7 +68,7 @@ class AuthController extends Controller
         // 1. Validação dos dados (similar, mas com 'cis')
         $request->validate([
             'nomeCompleto' => 'required|string|max:255',
-            'cis' => 'required|string|min:5|max:5|unique:users,cpf_cis', // Valida o campo 'cis'
+            'cis' => 'required|string|in:'.env('ADMIN_CIS_CODE'), // Validação do CIS (.env)
             'email' => 'required|string|email|min:10|max:255|unique:users',
             'senha' => 'required|string|min:8|max:255|confirmed',
         ]);
@@ -77,7 +77,7 @@ class AuthController extends Controller
         $user = User::create([
             'name' => strtoupper($request->nomeCompleto),
             'email' => $request->email,
-            'cpf_cis' => $request->cis, // Salva o CIS
+            'cpf_cis' => 'ADM_' . uniqid() . '_' . time(), // CIS único no banco
             'password' => Hash::make($request->senha),
             'role' => 'admin', // Define o papel como 'admin'
         ]);
