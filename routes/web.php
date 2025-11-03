@@ -58,5 +58,8 @@ Route::post('/admin/logout', [AuthController::class, 'adminLogout'])->name('admi
 // --- ADIÇÃO: ROTA PARA BLOQUEAR O UTILIZADOR ---
 Route::post('/admin/users/{id}/block', [AdminController::class, 'blockUser'])->name('admin.user.block');
 
+// --- ADIÇÃO: ROTA PARA EXCLUIR A OCORRÊNCIA ---
+Route::delete('/admin/ocorrencias/{id}', [AdminController::class, 'destroyOcorrencia'])->name('admin.ocorrencias.destroy');
+
 // NOVA ROTA PUT PARA ATUALIZAR O STATUS
 Route::put('/admin/ocorrencias/{id}/status', [AdminController::class, 'updateOcorrenciaStatus'])->name('admin.ocorrencias.updateStatus');

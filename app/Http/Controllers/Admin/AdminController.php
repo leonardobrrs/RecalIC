@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Ocorrencia;
 use App\Models\StatusHistorico;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
@@ -121,7 +122,21 @@ class AdminController extends Controller
 
     public function destroyOcorrencia(string $id)
     {
-        // Lógica de exclusão será implementada na Semana 3 (outra tarefa)
+        // 1. Encontra a ocorrência (com seus anexos) ou falha
+        $ocorrencia = Ocorrencia::with('anexos')->findOrFail($id);
+
+        // 2. Apaga os arquivos físicos do disco
+        foreach ($ocorrencia->anexos as $anexo) {
+            Storage::disk('public')->delete($anexo->file_path);
+        }
+
+        // 3. Apaga o registro da ocorrência do banco de dados
+        //    (O banco de dados cuidará de apagar os anexos, histórico e avaliações
+        //     relacionados, graças ao 'onDelete(cascade)' nas migrations)
+        $ocorrencia->delete();
+
+        // 4. Redireciona para o dashboard do admin com mensagem de sucesso
+        return redirect()->route('admin.dashboard')->with('success', 'Ocorrência (ID: ' . $id . ') foi excluída com sucesso.');
     }
 
     public function relatorios()

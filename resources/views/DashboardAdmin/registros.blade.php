@@ -100,9 +100,14 @@
                     <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#historicoModal">
                         <i class="bi bi-clock-history"></i> Exibir Histórico
                     </button>
-                    <button id="excluirBtn" class="btn btn-danger" type="button">
+
+                    <form action="{{ route('admin.ocorrencias.destroy', $ocorrencia->id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir esta ocorrência? Esta ação não pode ser desfeita.');">
+                        @csrf
+                        @method('DELETE')
+                        <button type"submit" class="btn btn-danger">
                         <i class="bi bi-trash"></i> Excluir Ocorrência
-                    </button>
+                        </button>
+                    </form>
 
                     @if($ocorrencia->relator && $ocorrencia->relator->reputation_score > 0)
                         <form action="{{ route('admin.user.block', $ocorrencia->relator->id) }}" method="POST" onsubmit="return confirm('Tem a certeza de que deseja bloquear este utilizador? A sua reputação será definida como 0.');">
@@ -197,17 +202,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Lógica para o botão de EXCLUIR OCORRÊNCIA (mantida)
-        const excluirBtn = document.getElementById('excluirBtn');
-        if(excluirBtn) {
-            excluirBtn.addEventListener('click', function() {
-                if (confirm('Tem certeza que deseja excluir esta ocorrência? Esta ação não pode ser desfeita.')) {
-                    // Futuro: Implementar exclusão via backend com método DELETE
-                    alert('A ocorrência foi excluída com sucesso! (Simulação)');
-                    window.location.href = '{{ url('/admin/dashboard') }}';
-                }
-            });
-        }
+
 
         // Lógica para EXPANDIR A IMAGEM NO MODAL (mantida)
         const thumbnails = document.querySelectorAll('.thumbnail-clicavel');
