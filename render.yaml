@@ -3,7 +3,7 @@ services:
   - type: web
     name: recalic-web # O nome do teu serviço no Render
     env: php      # Informa ao Render para usar o ambiente PHP
-    buildFiltering:
+    buildFilter:
       ignoredPaths:
         - "docs/**"
         - ".github/**"
