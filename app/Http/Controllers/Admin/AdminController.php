@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Ocorrencia;
 use App\Models\StatusHistorico;
@@ -53,6 +54,7 @@ class AdminController extends Controller
 
     public function showOcorrencia(string $id)
     {
+        $ocorrencia = Ocorrencia::with('relator')->findOrFail($id);
         // 1. Busca a ocorrência pelo ID
         // 2. 'with()' carrega os relacionamentos:
         //    'anexos' -> busca todas as fotos na tabela 'ocorrencia_anexos'
@@ -125,5 +127,18 @@ class AdminController extends Controller
     public function relatorios()
     {
         return view('DashboardAdmin.relatorios');
+    }
+
+    /**
+     * Define a reputação de um utilizador como 0 (Bloqueado).
+     */
+    public function blockUser(string $id)
+    {
+        $user = User::findOrFail($id);
+        $user->reputation_score = 0;
+        $user->save();
+
+        // Redireciona de volta para a página anterior (a de detalhes da ocorrência)
+        return redirect()->back()->with('success', 'Utilizador bloqueado com sucesso. A sua reputação foi definida como 0.');
     }
 }

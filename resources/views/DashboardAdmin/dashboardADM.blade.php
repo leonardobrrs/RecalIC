@@ -219,6 +219,26 @@
                                 <strong>Categoria:</strong> <span class="category">{{ $ocorrencia->categoria }}</span> <br>
                                 <strong>Data de abertura:</strong> <span class="date">{{ $ocorrencia->created_at->format('d/m/Y') }}</span> <br>
                                 <strong>Relatado por:</strong> {{ $ocorrencia->relator->name ?? 'Usuário anônimo' }}
+
+                                @php
+                                    $score = $ocorrencia->relator->reputation_score ?? 100;
+
+                                    // --- LÓGICA DE REPUTAÇÃO ATUALIZADA ---
+                                    if ($score <= 0) {
+                                        $reputacaoTexto = 'Bloqueado';
+                                        $colorClass = 'text-danger fw-bold'; // Vermelho e negrito
+                                    } elseif ($score < 55) {
+                                        $reputacaoTexto = 'Ruim';
+                                        $colorClass = 'text-danger';
+                                    } elseif ($score < 75) {
+                                        $reputacaoTexto = 'Média';
+                                        $colorClass = 'text-warning';
+                                    } else {
+                                        $reputacaoTexto = 'Boa';
+                                        $colorClass = 'text-success';
+                                    }
+                                @endphp
+                                (Reputação: <strong class="{{ $colorClass }}">{{ $reputacaoTexto }}</strong>)
                             </div>
                             <div class="occurrence-id">ID: {{ str_pad($ocorrencia->id, 4, '0', STR_PAD_LEFT) }}</div>
                         </div>

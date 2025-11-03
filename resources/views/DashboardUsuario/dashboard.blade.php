@@ -68,7 +68,8 @@
         }
 
         .sidebar h5 {
-            margin-bottom: 40px;
+            /* ALTERAÇÃO: Reduzido o margin-bottom para dar espaço à reputação */
+            margin-bottom: 5px;
         }
 
         .sidebar .nav-button {
@@ -136,6 +137,25 @@
     <div class="sidebar">
         <div class="profile-avatar">{{ substr(auth()->user()->name, 0, 1) }}</div>
         <h5>{{ explode(' ', auth()->user()->name)[0] }}</h5>
+
+        @php
+            $score = auth()->user()->reputation_score;
+
+            if ($score <= 0) {
+                $reputacaoTexto = 'Bloqueado';
+                $colorClass = 'badge bg-danger'; // Vermelho
+            } elseif ($score < 55) {
+                $reputacaoTexto = 'Ruim';
+                $colorClass = 'badge bg-danger';  // Vermelho
+            } elseif ($score < 75) {
+                $reputacaoTexto = 'Média';
+                $colorClass = 'badge bg-warning text-dark'; // Amarelo
+            } else {
+                $reputacaoTexto = 'Boa';
+                $colorClass = 'badge bg-success'; // Verde
+            }
+        @endphp
+        <p class="text-white mb-4">Reputação: <span class="{{ $colorClass }}">{{ $reputacaoTexto }}</span></p>
         <a href="{{ url('/dashboard') }}" class="nav-button">Meus Relatos</a>
         <a href="{{ url('/ocorrencias/registrar') }}" class="nav-button">Registrar nova ocorrência</a>
 

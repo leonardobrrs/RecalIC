@@ -55,5 +55,8 @@ Route::get('/admin/relatorios', [RelatorioController::class, 'index'])->name('ad
 
 Route::post('/admin/logout', [AuthController::class, 'adminLogout'])->name('admin.logout');
 
+// --- ADIÇÃO: ROTA PARA BLOQUEAR O UTILIZADOR ---
+Route::post('/admin/users/{id}/block', [AdminController::class, 'blockUser'])->name('admin.user.block');
+
 // NOVA ROTA PUT PARA ATUALIZAR O STATUS
 Route::put('/admin/ocorrencias/{id}/status', [AdminController::class, 'updateOcorrenciaStatus'])->name('admin.ocorrencias.updateStatus');

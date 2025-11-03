@@ -37,6 +37,14 @@ class OcorrenciaController extends Controller
      */
     public function store(Request $request)
     {
+        // --- ADIÇÃO: VERIFICAÇÃO DE BLOQUEIO ---
+        if (Auth::user()->reputation_score <= 0) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['limite' => 'A sua conta foi bloqueada por registar ocorrências inválidas e não pode criar novos relatos.']);
+        }
+        // --- FIM DA ADIÇÃO ---
+
         // 1. Validação dos dados
         $validatedData = $request->validate([
             'localizacao' => 'required|string|max:255',
