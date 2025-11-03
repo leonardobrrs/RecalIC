@@ -100,15 +100,13 @@
                     <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#historicoModal">
                         <i class="bi bi-clock-history"></i> Exibir Histórico
                     </button>
-
                     <form action="{{ route('admin.ocorrencias.destroy', $ocorrencia->id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir esta ocorrência? Esta ação não pode ser desfeita.');">
                         @csrf
                         @method('DELETE')
-                        <button type"submit" class="btn btn-danger">
-                        <i class="bi bi-trash"></i> Excluir Ocorrência
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Excluir Ocorrência
                         </button>
                     </form>
-
                     @if($ocorrencia->relator && $ocorrencia->relator->reputation_score > 0)
                         <form action="{{ route('admin.user.block', $ocorrencia->relator->id) }}" method="POST" onsubmit="return confirm('Tem a certeza de que deseja bloquear este utilizador? A sua reputação será definida como 0.');">
                             @csrf
@@ -156,6 +154,25 @@
         </div>
     </div>
 
+    @if ($ocorrencia->status == 'Resolvido' || $ocorrencia->status == 'Fechado')
+        <div class="card mb-4">
+            <div class="card-header fw-bold">Avaliação do Usuário</div>
+            <div class="card-body">
+                @if ($ocorrencia->avaliacao)
+                    <div class="row mb-3 align-items-center">
+                        <div class="col-sm-4"><label class="form-label fw-semibold">Nota:</label></div>
+                        <div class="col-sm-8"><p class="form-control-plaintext mb-0 fs-5"><strong>{{ $ocorrencia->avaliacao->nota }} / 5</strong></p></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><label class="form-label fw-semibold">Comentário:</label></div>
+                        <div class="col-sm-8"><p class="form-control-plaintext mb-0" style="min-height: 60px;">{{ $ocorrencia->avaliacao->comentario ?? 'Nenhum comentário fornecido.' }}</p></div>
+                    </div>
+                @else
+                    <p class="text-muted">Esta ocorrência foi resolvida, mas o usuário ainda não forneceu uma avaliação.</p>
+                @endif
+            </div>
+        </div>
+    @endif
     @if(session('success'))
         <div class="alert alert-success mt-3">
             {{ session('success') }}
@@ -202,7 +219,17 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-
+        // Lógica para o botão de EXCLUIR OCORRÊNCIA (mantida)
+        const excluirBtn = document.getElementById('excluirBtn');
+        if(excluirBtn) {
+            excluirBtn.addEventListener('click', function() {
+                if (confirm('Tem certeza que deseja excluir esta ocorrência? Esta ação não pode ser desfeita.')) {
+                    // O formulário de exclusão será submetido
+                } else {
+                    event.preventDefault(); // Impede o submit se o usuário cancelar
+                }
+            });
+        }
 
         // Lógica para EXPANDIR A IMAGEM NO MODAL (mantida)
         const thumbnails = document.querySelectorAll('.thumbnail-clicavel');

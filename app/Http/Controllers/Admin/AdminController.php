@@ -69,15 +69,10 @@ class AdminController extends Controller
 
     public function showOcorrencia(string $id)
     {
-        $ocorrencia = Ocorrencia::with('relator')->findOrFail($id);
-        // 1. Busca a ocorrência pelo ID
-        // 2. 'with()' carrega os relacionamentos:
-        //    'anexos' -> busca todas as fotos na tabela 'ocorrencia_anexos'
-        //    'historico.admin' -> busca o histórico E o nome do admin que fez a alteração
-        $ocorrencia = Ocorrencia::with(['anexos', 'historico.admin'])
-                                ->findOrFail($id);
+        // ALTERAÇÃO: Adicionado 'avaliacao' ao 'with()'
+        $ocorrencia = Ocorrencia::with(['relator', 'anexos', 'historico.admin', 'avaliacao'])
+            ->findOrFail($id);
 
-        // 3. Retorna a view e passa a ocorrência completa com seus relacionamentos
         return view('DashboardAdmin.registros', ['ocorrencia' => $ocorrencia]);
     }
 
