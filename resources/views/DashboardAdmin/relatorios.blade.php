@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Seu CSS continua o mesmo */
+        /* Seu CSS (sem alterações) */
         body, html {
             height: 100%;
             margin: 0;
@@ -41,13 +41,13 @@
 <body>
 <div class="d-flex">
     <div class="sidebar">
-        <div class="profile-avatar">{{ substr(auth()->user()->name, 0, 1) }}</div>
-        <h5>{{ explode(' ', auth()->user()->name)[0] }}</h5>
+        <div class="profile-avatar">A</div>
+        <h5>Administrador</h5>
         <a href="{{ url('/admin/dashboard') }}" class="nav-button">Ocorrências</a>
         <a href="{{ url('/admin/relatorios') }}" class="nav-button active">Relatórios</a>
 
         <div class="sidebar-footer">
-            <form action="{{ route('admin.logout') }}" method="POST">
+            <form action="{{ url('/logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="logout-button">
                     <i class="bi bi-power" style="font-size: 1.5rem;"></i>
@@ -91,8 +91,8 @@
             <div class="col-md-3">
                 <div class="card kpi-card text-center shadow-sm h-100">
                     <div class="card-body">
-                        <h3 class="card-title text-info">-</h3>
-                        <p class="card-text text-muted">Tempo Médio Resolução</p>
+                        <h3 class="card-title text-info" style="font-size: 1.8rem;">{{ $tempoMedioFormatado }}</h3>
+                        <p class="card-text text-muted">Tempo Médio de Resolução</p>
                     </div>
                 </div>
             </div>
@@ -124,8 +124,8 @@
 </div>
 
 <script>
+    // Scripts dos gráficos (sem alterações)
     // --- Gráfico de Categorias (Pizza) ---
-    // Pega os dados enviados pelo controller (converte PHP array/collection para JS object)
     const categoryData = @json($ocorrenciasPorCategoria ?? []);
     const categoryLabels = Object.keys(categoryData);
     const categoryCounts = Object.values(categoryData);
@@ -134,18 +134,18 @@
     new Chart(ctxCategory, {
         type: 'pie',
         data: {
-            labels: categoryLabels.length > 0 ? categoryLabels : ['Nenhuma ocorrência registrada'], // Labels dinâmicas
+            labels: categoryLabels.length > 0 ? categoryLabels : ['Nenhuma ocorrência registrada'],
             datasets: [{
                 label: 'Ocorrências',
-                data: categoryCounts.length > 0 ? categoryCounts : [1], // Dados dinâmicos
-                backgroundColor: categoryLabels.length > 0 ? [ // Cores padrão
+                data: categoryCounts.length > 0 ? categoryCounts : [1],
+                backgroundColor: categoryLabels.length > 0 ? [
                     'rgba(255, 99, 132, 0.7)',
                     'rgba(54, 162, 235, 0.7)',
                     'rgba(255, 206, 86, 0.7)',
                     'rgba(75, 192, 192, 0.7)',
                     'rgba(153, 102, 255, 0.7)',
                     'rgba(255, 159, 64, 0.7)'
-                ] : ['rgba(200, 200, 200, 0.7)'], // Cor cinza se não houver dados
+                ] : ['rgba(200, 200, 200, 0.7)'],
                 borderColor: '#fff',
                 borderWidth: 2
             }]
@@ -165,10 +165,10 @@
     new Chart(ctxLocation, {
         type: 'bar',
         data: {
-            labels: locationLabels.length > 0 ? locationLabels : ['Nenhum local registrado'], // Labels dinâmicas
+            labels: locationLabels.length > 0 ? locationLabels : ['Nenhum local registrado'],
             datasets: [{
                 label: 'Nº de Relatos',
-                data: locationCounts.length > 0 ? locationCounts : [0], // Dados dinâmicos
+                data: locationCounts.length > 0 ? locationCounts : [0],
                 backgroundColor: 'rgba(75, 192, 192, 0.7)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1
@@ -180,9 +180,6 @@
             plugins: { legend: { display: false } }
         }
     });
-
-    // Simulação de filtro de relatório (mantido como estava)
-    document.getElementById('reportForm')?.addEventListener('submit', function(e) { /*...*/ });
 </script>
 </body>
 </html>
