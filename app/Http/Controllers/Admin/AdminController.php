@@ -21,10 +21,24 @@ class AdminController extends Controller
         // Inicia a query para buscar ocorrências com o relacionamento 'relator'
         $query = Ocorrencia::with('relator');
 
-        // Aplica os filtros (lógica já existente)
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
+        // --- LÓGICA DE FILTRO DE STATUS ATUALIZADA ---
+
+        // Verifica se o parâmetro 'status' foi enviado na URL
+        if ($request->has('status')) {
+            // Se foi enviado e NÃO está vazio (ex: "Resolvido", "Aberto")
+            // A query filtra por esse status específico.
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+            // Se 'status' foi enviado MAS está VAZIO (ex: o usuário selecionou "Todos")
+            // não adicionamos nenhum filtro de status, mostrando TODOS.
+        } else {
+            // DEFAULT (Nenhum parâmetro 'status' na URL, primeiro acesso)
+            // Mostra apenas ocorrências ativas ("Abertas" ou "Em Análise").
+            $query->whereIn('status', ['Aberto', 'Em Análise']);
         }
+        // --- FIM DA LÓGICA DE FILTRO DO STATUS ---
+
         if ($request->filled('category')) {
             $query->where('categoria', $request->category);
         }

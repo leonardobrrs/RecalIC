@@ -169,11 +169,11 @@
                     <div class="col-md-4">
                         <label for="statusFilter" class="form-label text-dark">Status</label>
                         <select id="statusFilter" name="status" class="form-select">
-                            <option value="">Todos</option>
-                            <option value="Aberto" {{ request('status') == 'Aberto' ? 'selected' : '' }}>Em Aberto</option>
+                            <option value="Aberto" {{ request('status') == 'Aberto' ? 'selected' : '' }}>Aberto</option>
                             <option value="Em Análise" {{ request('status') == 'Em Análise' ? 'selected' : '' }}>Em Análise</option>
-                            <option value="Resolvido" {{ request('status') == 'Resolvido' ? 'selected' : '' }}>Resolvido</option>
-                            <option value="Inválido" {{ request('status') == 'Inválido' ? 'selected' : '' }}>Inválido</option>
+                            <option value="Resolvido" {{ request('status') == 'Resolvido' ? 'selected' : '' }}>Resolvido (Arquivadas)</option>
+                            <option value="Inválido" {{ request('status') == 'Inválido' ? 'selected' : '' }}>Inválido (Arquivadas)</option>
+                            <option value="" {{ request()->has('status') && request('status') == '' ? 'selected' : '' }}>Ver Todas as Ocorrências</option>
                         </select>
                     </div>
                     <div class="col-md-4">
