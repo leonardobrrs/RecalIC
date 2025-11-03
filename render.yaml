@@ -1,0 +1,60 @@
+services:
+  # 1. O Serviço Web (Aplicação Laravel)
+  - type: web
+    name: recalic-web # O nome do teu serviço no Render
+    env: php      # Informa ao Render para usar o ambiente PHP
+    buildFiltering:
+      ignoredPaths:
+        - "docs/**"
+        - ".github/**"
+
+    # Comandos de Build: Instala dependências, cria caches de config/rotas/views, e cria o link de storage
+    buildCommand: |
+      composer install --no-dev --no-interaction --optimize-autoloader
+      php artisan config:cache
+      php artisan route:cache
+      php artisan view:cache
+      php artisan storage:link
+
+    # Comando para iniciar o servidor (usando PHP-FPM)
+    startCommand: php-fpm -F
+
+    # --- Variáveis de Ambiente ---
+    envVars:
+      # --- Configurações do Laravel (O Render preenche automaticamente ou gera) ---
+      - key: APP_URL
+        # O Render irá preencher o URL correto automaticamente (ex: https://recalic-web.onrender.com)
+        value: ${{ secrets.APP_URL }}
+      - key: APP_KEY
+        generateValue: true # O Render gera uma chave segura
+      - key: APP_ENV
+        value: production
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: error
+      - key: SESSION_DRIVER
+        value: database # Vamos usar o Aiven para sessões também
+
+      # --- Conexão ao Aiven MySQL (DEVES PREENCHER MANUALMENTE) ---
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        value: SEU_HOST_DO_AIVEN_AQUI
+      - key: DB_PORT
+        value: SEU_PORT_DO_AIVEN_AQUI
+      - key: DB_DATABASE
+        value: SEU_DBNAME_DO_AIVEN_AQUI
+      - key: DB_USERNAME
+        value: SEU_USER_DO_AIVEN_AQUI
+      - key: DB_PASSWORD
+        # RECOMENDADO: Define isto como "Secret Variable" no painel do Render
+        value: SUA_SENHA_DO_AIVEN_AQUI
+
+      # --- Configuração SSL do Aiven (CRUCIAL) ---
+      - key: DB_SSL_MODE
+        value: REQUIRED
+      - key: MYSQL_ATTR_SSL_CA
+        # Este é o caminho onde o Render encontrará o certificado que subiste para o Git
+        # (Assume que o certificado está em 'database/certs/ca.pem' no teu repositório)
+        value: /opt/render/project/src/database/certs/ca.pem
