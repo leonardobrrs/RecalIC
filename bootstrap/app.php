@@ -9,9 +9,18 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        then: function () {
+            // --- ADICIONA ESTA LINHA ---
+            // Força o Laravel a usar 'httpsS' quando estiver em produção
+            if (app()->isProduction()) {
+                \Illuminate\Support\Facades\URL::forceScheme('https');
+            }
+        }
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->trustProxies(at: [
+            '*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
