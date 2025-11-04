@@ -11,7 +11,9 @@ WORKDIR /var/www/html
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
-ENV SUPERVISOR_PHP_COMMAND="/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan serve --host=0.0.0.0 --port=80"
+# Default PORT; o Render sobrescreve $PORT automaticamente no deploy
+ENV PORT=8080
+ENV SUPERVISOR_PHP_COMMAND="/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan serve --host=0.0.0.0 --port=${PORT}"
 ENV SUPERVISOR_PHP_USER="sail"
 ENV PLAYWRIGHT_BROWSERS_PATH=0
 
@@ -57,24 +59,22 @@ RUN apt-get update && apt-get upgrade -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.3
-
 # ===========================================
-# == INÍCIO DAS ALTERAÇÕES ==
+# == INÍCIO DAS ALTERAÇÕES (CORREÇÃO) ==
 # ===========================================
+# Removido: file capability que causava "operation not permitted" no Render
+# RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.3
 
-# ALTERAÇÃO 1: Adiciona permissão de execução ao binário do PHP
-RUN chmod +x /usr/bin/php8.3
-
-RUN userdel -r ubuntu
-# ALTERAÇÃO 2: Remove a flag -g $WWWGROUP para evitar conflito de GID
-RUN groupadd --force sail
-# ALTERAÇÃO 3: Altera -g $WWWGROUP para -g sail (usa o nome do grupo)
-RUN useradd -ms /bin/bash --no-user-group -g sail -u 1337 sail
-
+# Removido: chmod desnecessário (o binário já é executável)
+# RUN chmod +x /usr/bin/php8.3
 # ===========================================
 # == FIM DAS ALTERAÇÕES ==
 # ===========================================
+
+RUN userdel -r ubuntu || true
+RUN groupadd --force sail
+RUN useradd -ms /bin/bash --no-user-group -g sail -u 1337 sail
+
 RUN git config --global --add safe.directory /var/www/html
 
 COPY start-container /usr/local/bin/start-container
@@ -82,6 +82,7 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY php.ini /etc/php/8.3/cli/conf.d/99-sail.ini
 RUN chmod +x /usr/local/bin/start-container
 
-EXPOSE 80/tcp
+# Exponha a porta alta (não-privilegiada)
+EXPOSE 8080/tcp
 
 ENTRYPOINT ["start-container"]
