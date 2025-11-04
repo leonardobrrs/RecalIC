@@ -86,13 +86,6 @@ RUN if [ -f /var/www/html/composer.json ]; then \
 RUN chown -R sail:sail /var/www/html \
     && chmod -R ug+rwx /var/www/html/storage /var/www/html/bootstrap/cache || true
 
-RUN cd /var/www/html && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
-    php artisan storage:link && \
-    php artisan migrate --force
-
 RUN git config --global --add safe.directory /var/www/html
 
 COPY docker/8.3/start-container /usr/local/bin/start-container
