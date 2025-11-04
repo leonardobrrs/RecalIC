@@ -59,9 +59,22 @@ RUN apt-get update && apt-get upgrade -y \
 
 RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.3
 
+# ===========================================
+# == INÍCIO DAS ALTERAÇÕES ==
+# ===========================================
+
+# ALTERAÇÃO 1: Adiciona permissão de execução ao binário do PHP
+RUN chmod +x /usr/bin/php8.3
+
 RUN userdel -r ubuntu
+# ALTERAÇÃO 2: Remove a flag -g $WWWGROUP para evitar conflito de GID
 RUN groupadd --force sail
+# ALTERAÇÃO 3: Altera -g $WWWGROUP para -g sail (usa o nome do grupo)
 RUN useradd -ms /bin/bash --no-user-group -g sail -u 1337 sail
+
+# ===========================================
+# == FIM DAS ALTERAÇÕES ==
+# ===========================================
 RUN git config --global --add safe.directory /var/www/html
 
 COPY start-container /usr/local/bin/start-container
