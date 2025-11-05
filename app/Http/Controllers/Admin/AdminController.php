@@ -73,7 +73,18 @@ class AdminController extends Controller
         $ocorrencia = Ocorrencia::with(['relator', 'anexos', 'historico.admin', 'avaliacao'])
             ->findOrFail($id);
 
-        return view('DashboardAdmin.registros', ['ocorrencia' => $ocorrencia]);
+        // --- NOVA LÓGICA ---
+        // Verifica se o histórico contém um registro de que o relator já foi avaliado
+        $relatorJaAvaliado = $ocorrencia->historico->contains(function ($item) {
+            // Usamos 'status_novo' como um "log" de ação
+            return $item->status_novo === 'Relator Avaliado';
+        });
+        // --- FIM DA NOVA LÓGICA ---
+
+        return view('DashboardAdmin.registros', [
+            'ocorrencia' => $ocorrencia,
+            'relatorJaAvaliado' => $relatorJaAvaliado // Passa a flag para a view
+        ]);
     }
 
     /**
@@ -116,7 +127,7 @@ class AdminController extends Controller
             $relator = $ocorrencia->relator; // Usa o relacionamento que já existe
             if ($relator) {
                 // Diminui a pontuação (ajuste o valor da penalidade conforme necessário)
-                $relator->reputation_score -= 10;
+                $relator->reputation_score -= 20;
                 $relator->save(); // Salva a alteração no usuário
             }
         }
@@ -164,5 +175,61 @@ class AdminController extends Controller
 
         // Redireciona de volta para a página anterior (a de detalhes da ocorrência)
         return redirect()->back()->with('success', 'Utilizador bloqueado com sucesso. A sua reputação foi definida como 0.');
+    }
+
+    public function avaliarRelator(Request $request, $id)
+    {
+        $request->validate([
+            'nota' => 'required|integer|min:1|max:5',
+        ]);
+
+        // Carrega a ocorrência com as relações necessárias
+        $ocorrencia = Ocorrencia::with(['relator', 'historico'])->findOrFail($id);
+
+        // --- VERIFICAÇÃO DE REAVALIAÇÃO ---
+        $jaAvaliado = $ocorrencia->historico->contains(function ($item) {
+            return $item->status_novo === 'Relator Avaliado';
+        });
+
+        if ($jaAvaliado) {
+            return redirect()->back()->withErrors(['error' => 'Este relator já foi avaliado para esta ocorrência.']);
+        }
+        // --- FIM DA VERIFICAÇÃO ---
+
+        $usuario = $ocorrencia->relator;
+
+        if (!$usuario || !$usuario->id) {
+            return redirect()->back()->withErrors(['error' => 'Não é possível avaliar um usuário que foi excluído.']);
+        }
+
+        if ($usuario->id === auth()->id()) {
+            return redirect()->back()->withErrors(['error' => 'Você não pode avaliar a si mesmo!']);
+        }
+
+        // Lógica da pontuação
+        $score = 0;
+        switch ($request->nota) {
+            case 1: $score = 0; break;
+            case 2: $score = 25; break;
+            case 3: $score = 50; break;
+            case 4: $score = 75; break;
+            case 5: $score = 100; break;
+        }
+
+        $usuario->reputation_score = $score;
+        $usuario->save();
+
+        // --- LOGA A AVALIAÇÃO NO HISTÓRICO ---
+        // Isso previne futuras reavaliações
+        StatusHistorico::create([
+            'ocorrencia_id' => $ocorrencia->id,
+            'user_id' => Auth::id(), // Admin que avaliou
+            'status_anterior' => $ocorrencia->status, // Status atual (Resolvido)
+            'status_novo' => 'Relator Avaliado', // Nosso status "virtual" para log
+            'comentario' => 'O relator recebeu a nota ' . $request->nota . ' (Score atualizado para: ' . $score . ')',
+        ]);
+        // --- FIM DO LOG ---
+
+        return redirect()->back()->with('success', 'A avaliação do relator foi registrada e seu score de reputação atualizado!');
     }
 }

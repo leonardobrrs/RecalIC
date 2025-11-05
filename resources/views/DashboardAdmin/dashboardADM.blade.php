@@ -192,9 +192,6 @@
                         <input type="text" class="form-control" name="search" id="searchField" value="{{ request('search') }}" placeholder="Pesquisar por descrição, nome...">
                     </div>
                     <div class="col-12 text-end mt-4">
-                        <a href="{{ url('/admin/dashboard') }}" class="btn btn-outline-secondary">
-                            Mostrar Todos
-                        </a>
                         <button type="submit" class="btn btn-dark">Filtrar</button>
                     </div>
                 </div>
@@ -224,11 +221,10 @@
                                 @php
                                     $score = $ocorrencia->relator->reputation_score ?? 100;
 
-                                    // --- LÓGICA DE REPUTAÇÃO ATUALIZADA ---
                                     if ($score <= 0) {
                                         $reputacaoTexto = 'Bloqueado';
-                                        $colorClass = 'text-danger fw-bold'; // Vermelho e negrito
-                                    } elseif ($score < 55) {
+                                        $colorClass = 'text-danger fw-bold';
+                                    } elseif ($score < 50) {
                                         $reputacaoTexto = 'Ruim';
                                         $colorClass = 'text-danger';
                                     } elseif ($score < 75) {

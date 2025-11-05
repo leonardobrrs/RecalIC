@@ -144,7 +144,7 @@
             if ($score <= 0) {
                 $reputacaoTexto = 'Bloqueado';
                 $colorClass = 'badge bg-danger'; // Vermelho
-            } elseif ($score < 55) {
+            } elseif ($score < 50) {
                 $reputacaoTexto = 'Ruim';
                 $colorClass = 'badge bg-danger';  // Vermelho
             } elseif ($score < 75) {

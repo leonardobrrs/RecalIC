@@ -13,7 +13,7 @@
         .logout-button { display: flex; align-items: center; justify-content: center; gap: 10px; background: none; border: none; color: white; font-size: 1.1rem; cursor: pointer; opacity: 0.8; transition: opacity 0.3s ease; text-decoration: none; width: 100%; }
         .logout-button:hover { opacity: 1; color: white; }
         .profile-avatar { width: 150px; height: 150px; border-radius: 50%; background-color: #0a58ca; display: flex; align-items: center; justify-content: center; font-size: 70px; font-weight: bold; color: white; margin-bottom: 20px; }
-        .sidebar h5 { margin-bottom: 40px; }
+        .sidebar h5 { margin-bottom: 0.5rem; }
         .sidebar .nav-button { background-color: #f8f9fa; color: #343a40; border: none; border-radius: 20px; padding: 10px 20px; width: 90%; text-align: center; margin-bottom: 15px; text-decoration: none; font-weight: 500; transition: background-color 0.3s ease; }
         .sidebar .nav-button:hover { background-color: #e2e6ea; }
         .main-content { margin-left: 280px; padding: 40px; }
@@ -37,6 +37,23 @@
     <div class="sidebar">
         <div class="profile-avatar">{{ substr(auth()->user()->name, 0, 1) }}</div>
         <h5>{{ explode(' ', auth()->user()->name)[0] }}</h5>
+        @php
+            $score = auth()->user()->reputation_score;
+            if ($score <= 0) {
+                $reputacaoTexto = 'Bloqueado';
+                $colorClass = 'badge bg-danger'; // Vermelho
+            } elseif ($score < 50) {
+                $reputacaoTexto = 'Ruim';
+                $colorClass = 'badge bg-danger';  // Vermelho
+            } elseif ($score < 75) {
+                $reputacaoTexto = 'Média';
+                $colorClass = 'badge bg-warning text-dark'; // Amarelo
+            } else {
+                $reputacaoTexto = 'Boa';
+                $colorClass = 'badge bg-success'; // Verde
+            }
+        @endphp
+        <p class="text-white" style="margin-bottom: 40px;">Reputação: <span class="{{ $colorClass }}">{{ $reputacaoTexto }}</span></p>
         <a href="{{ url('/dashboard') }}" class="nav-button">Meus Relatos</a>
         <a href="{{ url('/ocorrencias/registrar') }}" class="nav-button">Registrar nova ocorrência</a>
         <div class="sidebar-footer">
