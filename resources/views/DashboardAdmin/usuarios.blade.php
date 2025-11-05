@@ -24,13 +24,13 @@
 <body>
 <div class="d-flex">
     <div class="sidebar">
-        <div class="profile-avatar">A</div>
-        <h5>Administrador</h5>
+        <div class="profile-avatar">{{ substr(auth()->user()->name, 0, 1) }}</div>
+        <h5>{{ explode(' ', auth()->user()->name)[0] }}</h5>
         <a href="{{ url('/admin/dashboard') }}" class="nav-button">Ocorrências</a>
-        <a href="{{ url('/admin/usuarios') }}" class="nav-button active">Usuários</a>
+        <a href="{{ url('/admin/usuarios') }}" class="nav-button">Usuários</a>
         <a href="{{ url('/admin/relatorios') }}" class="nav-button">Relatórios</a>
         <div class="sidebar-footer">
-            <form action="{{ url('/logout') }}" method="POST">
+            <form action="{{ route('admin.logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="logout-button">
                     <i class="bi bi-power" style="font-size: 1.5rem;"></i>

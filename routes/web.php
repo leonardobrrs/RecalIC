@@ -18,7 +18,7 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// --- ROTAS DE AUTENTICAÇÃO DE USUÁRIO ---
+// --- ROTAS DE AUTENTICAÇÃO DE USUÁRIO (PÚBLICAS) ---
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -28,20 +28,17 @@ Route::post('/cadastro', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
-// --- ROTAS DO PAINEL DO USUÁRIO ---
+// --- ROTAS DO PAINEL DO USUÁRIO (PROTEGIDAS POR AUTH) ---
 Route::get('/dashboard', [OcorrenciaController::class, 'index'])->name('user.dashboard');
 Route::get('/ocorrencias/registrar', [OcorrenciaController::class, 'create'])->name('ocorrencias.create');
-
-// ROTA ADICIONADA: PARA SALVAR A NOVA OCORRÊNCIA | até 3 ocorrências a cada 60 minutos
 Route::post('/ocorrencias/registrar', [OcorrenciaController::class, 'store'])->name('ocorrencias.store')->middleware('throttle:3,60');
-
 Route::get('/ocorrencias/{id}', [OcorrenciaController::class, 'show'])->name('ocorrencias.show');
 Route::get('/ocorrencias/{id}/historico', [OcorrenciaController::class, 'historico'])->name('ocorrencias.historico');
-
-// NOVA ROTA POST PARA SALVAR A AVALIAÇÃO
 Route::post('/ocorrencias/{id}/avaliar', [OcorrenciaController::class, 'storeAvaliacao'])->name('ocorrencias.avaliar');
 
-// --- ROTAS DA ÁREA ADMINISTRATIVA ---
+
+// --- ROTAS DE LOGIN/CADASTRO DO ADMIN (PÚBLICAS) ---
+// Estas ficam FORA do grupo de middleware 'admin'
 Route::get('/admin/login', [AuthController::class, 'showAdminLoginForm'])->name('admin.login');
 Route::post('/admin/login', [AuthController::class, 'adminLogin']);
 
@@ -49,29 +46,28 @@ Route::get('/admin/cadastro', [AuthController::class, 'showAdminRegistrationForm
 Route::post('/admin/cadastro', [AuthController::class, 'adminRegister']);
 
 
-// --- ROTAS DO PAINEL DO ADMINISTRADOR ---
-Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-Route::get('/admin/ocorrencias/{id}', [AdminController::class, 'showOcorrencia'])->name('admin.ocorrencias.show');
-Route::get('/admin/relatorios', [RelatorioController::class, 'index'])->name('admin.relatorios');
-Route::post('/admin/logout', [AuthController::class, 'adminLogout'])->name('admin.logout');
+// --- INÍCIO DA ALTERAÇÃO ---
 
-// --- ROTAS DE GESTÃO DE UTILIZADORES ---
-Route::get('/admin/usuarios', [UsuarioController::class, 'index'])->name('admin.usuarios.index');
-Route::delete('/admin/usuarios/{user}', [UsuarioController::class, 'destroy'])->name('admin.usuarios.destroy');
+// --- ROTAS PROTEGIDAS DO PAINEL DO ADMINISTRADOR ---
+// Todas as rotas neste grupo exigem que o usuário esteja logado E tenha a role 'admin'
+Route::middleware('admin')->group(function () {
 
-// --- ROTAS NOVAS ADICIONADAS ---
-Route::post('/admin/usuarios/{user}/toggle-role', [UsuarioController::class, 'toggleRole'])->name('admin.usuarios.toggleRole');
-Route::post('/admin/usuarios/{user}/block', [UsuarioController::class, 'block'])->name('admin.usuarios.block');
-Route::post('/admin/usuarios/{user}/unblock', [UsuarioController::class, 'unblock'])->name('admin.usuarios.unblock');
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/admin/ocorrencias/{id}', [AdminController::class, 'showOcorrencia'])->name('admin.ocorrencias.show');
+    Route::get('/admin/relatorios', [RelatorioController::class, 'index'])->name('admin.relatorios');
+    Route::post('/admin/logout', [AuthController::class, 'adminLogout'])->name('admin.logout');
 
-// --- ADIÇÃO: ROTA PARA BLOQUEAR O UTILIZADOR ---
-Route::post('/admin/users/{id}/block', [AdminController::class, 'blockUser'])->name('admin.user.block');
+    // --- ROTAS DE GESTÃO DE UTILIZADORES ---
+    Route::get('/admin/usuarios', [UsuarioController::class, 'index'])->name('admin.usuarios.index');
+    Route::delete('/admin/usuarios/{user}', [UsuarioController::class, 'destroy'])->name('admin.usuarios.destroy');
+    Route::post('/admin/usuarios/{user}/toggle-role', [UsuarioController::class, 'toggleRole'])->name('admin.usuarios.toggleRole');
+    Route::post('/admin/usuarios/{user}/block', [UsuarioController::class, 'block'])->name('admin.usuarios.block');
+    Route::post('/admin/usuarios/{user}/unblock', [UsuarioController::class, 'unblock'])->name('admin.usuarios.unblock');
 
-// NOVA ROTA PUT PARA ATUALIZAR O STATUS
-Route::put('/admin/ocorrencias/{id}/status', [AdminController::class, 'updateOcorrenciaStatus'])->name('admin.ocorrencias.updateStatus');
+    // --- ROTAS DE GESTÃO DE OCORRÊNCIAS/BLOQUEIO ---
+    Route::post('/admin/users/{id}/block', [AdminController::class, 'blockUser'])->name('admin.user.block');
+    Route::put('/admin/ocorrencias/{id}/status', [AdminController::class, 'updateOcorrenciaStatus'])->name('admin.ocorrencias.updateStatus');
+    Route::post('/admin/ocorrencias/{id}/avaliar-relator', [AdminController::class, 'avaliarRelator'])->name('admin.ocorrencias.avaliarRelator');
+    Route::delete('/admin/ocorrencias/{id}', [AdminController::class, 'destroyOcorrencia'])->name('admin.ocorrencias.destroy');
 
-// --- NOVA ROTA PARA O ADMIN AVALIAR O RELATOR (USUÁRIO) ---
-Route::post('/admin/ocorrencias/{id}/avaliar-relator', [AdminController::class, 'avaliarRelator'])->name('admin.ocorrencias.avaliarRelator');
-
-// --- ADIÇÃO: ROTA PARA EXCLUIR A OCORRÊNCIA ---
-Route::delete('/admin/ocorrencias/{id}', [AdminController::class, 'destroyOcorrencia'])->name('admin.ocorrencias.destroy');
+});
