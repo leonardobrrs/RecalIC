@@ -37,49 +37,49 @@ class OcorrenciaController extends Controller
      */
     public function store(Request $request)
     {
-        // --- ADIÇÃO: VERIFICAÇÃO DE BLOQUEIO ---
         if (Auth::user()->reputation_score <= 0) {
             return redirect()->back()
                 ->withInput()
                 ->withErrors(['limite' => 'A sua conta foi bloqueada por registar ocorrências inválidas e não pode criar novos relatos.']);
         }
-        // --- FIM DA ADIÇÃO ---
 
-        // 1. Validação dos dados
+        // --- ALTERAÇÃO: ADICIONADA VALIDAÇÃO PARA 'localizacao_outra' ---
         $validatedData = $request->validate([
             'localizacao' => 'required|string|max:255',
+            'localizacao_outra' => 'nullable|required_if:localizacao,Outro|string|max:255', // Obrigatório se 'localizacao' for 'Outro'
             'categoria' => 'required|string|max:255',
             'patrimonio_id' => 'nullable|string|max:255',
             'descricao' => 'required|string',
-            'anexos' => 'nullable|array|max:4', // Até 4 imagens
-            'anexos.*' => 'image|mimes:jpeg,png,jpg|max:2048' // Limite 2MB por imagem
+            'anexos.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048'
         ]);
+
+        // --- ALTERAÇÃO: LÓGICA PARA PEGAR O VALOR FINAL DA LOCALIZAÇÃO ---
+        $localizacaoFinal = $validatedData['localizacao'];
+        if ($localizacaoFinal === 'Outro' && !empty($validatedData['localizacao_outra'])) {
+            $localizacaoFinal = $validatedData['localizacao_outra'];
+        }
 
         // 2. Cria a ocorrência principal
         $ocorrencia = Ocorrencia::create([
-            'user_id' => Auth::id(), // Pega o ID do usuário logado
-            'localizacao' => $validatedData['localizacao'],
+            'user_id' => Auth::id(),
+            'localizacao' => $localizacaoFinal, // <-- Usa a variável final
             'categoria' => $validatedData['categoria'],
             'patrimonio_id' => $validatedData['patrimonio_id'],
             'descricao' => $validatedData['descricao'],
-            'status' => 'Aberto', // Define o status inicial
+            'status' => 'Aberto',
         ]);
 
-        // 3. Processa e salva os anexos, se houver
+        // ... (resto do método store, lidando com anexos e redirecionamento) ...
+
         if ($request->hasFile('anexos')) {
             foreach ($request->file('anexos') as $anexo) {
-                // Salva o arquivo em 'storage/app/public/anexos' e obtém o caminho
                 $path = $anexo->store('anexos', 'public');
-
-                // Cria o registro no banco de dados
                 OcorrenciaAnexo::create([
                     'ocorrencia_id' => $ocorrencia->id,
                     'file_path' => $path,
                 ]);
             }
         }
-
-        // 4. Redireciona para o dashboard com uma mensagem de sucesso
         return redirect()->route('user.dashboard')->with('success', 'Ocorrência registrada com sucesso!');
     }
 

@@ -184,7 +184,7 @@
                             <option value="Equipamentos" {{ request('category') == 'Equipamentos' ? 'selected' : '' }}>Equipamentos</option>
                             <option value="Infraestrutura" {{ request('category') == 'Infraestrutura' ? 'selected' : '' }}>Infraestrutura</option>
                             <option value="Eletrônicos" {{ request('category') == 'Eletrônicos' ? 'selected' : '' }}>Eletrônicos</option>
-                            <option value="Patrimônio" {{ request('category') == 'Patrimônio' ? 'selected' : '' }}>Patrimônio</option>
+                            <option value="Outro" {{ request('category') == 'Outro' ? 'selected' : '' }}>Outro</option>
                         </select>
                     </div>
                     <div class="col-md-4">

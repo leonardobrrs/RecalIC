@@ -38,10 +38,32 @@
                         <label class="form-label fw-semibold">Localização</label>
                     </div>
                     <div class="col-sm-8">
-                        <input type="text" name="localizacao" class="form-control" placeholder="Ex: Laboratório 1, Bloco A" value="{{ old('localizacao') }}" required>
+                        @php
+                            $locais = [
+                                'Sala de Aula 01', 'Sala de Aula 02', 'Sala de Aula 03', 'Mini-sala 01',
+                                'Mini-auditório', 'Sala de Reuniões', 'Laboratório de Robótica',
+                                'Laboratório de Graduação 01', 'Laboratório de Graduação 02',
+                                'Laboratório de Graduação 03', 'Laboratório de Circuitos Elétricos e Eletrônicos',
+                                'Auditório CEPETC', 'Hall', 'Secretaria', 'Outro'
+                            ];
+                        @endphp
+                        <select id="localizacaoSelect" name="localizacao" class="form-select" required>
+                            <option value="" disabled {{ old('localizacao') ? '' : 'selected' }}>Selecione um local...</option>
+                            @foreach($locais as $local)
+                                <option value="{{ $local }}" {{ old('localizacao') == $local ? 'selected' : '' }}>{{ $local == 'Outro' ? 'Outro (descreva a localização)' : $local }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
+                <div class="row mb-3 align-items-center" id="outroLocalContainer" style="display: none;">
+                    <div class="col-sm-4">
+                        <label for="localizacao_outra" class="form-label fw-semibold">Qual Local?</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <input type="text" id="localizacao_outra" name="localizacao_outra" class="form-control" placeholder="Descreva a localização exata" value="{{ old('localizacao_outra') }}">
+                    </div>
+                </div>
                 <div class="row mb-3 align-items-center">
                     <div class="col-sm-4">
                         <label for="categoryFilter" class="form-label fw-semibold">Categoria</label>
@@ -52,7 +74,7 @@
                             <option value="Equipamentos" {{ old('categoria') == 'Equipamentos' ? 'selected' : '' }}>Equipamentos</option>
                             <option value="Infraestrutura" {{ old('categoria') == 'Infraestrutura' ? 'selected' : '' }}>Infraestrutura</option>
                             <option value="Eletrônicos" {{ old('categoria') == 'Eletrônicos' ? 'selected' : '' }}>Eletrônicos</option>
-                            <option value="Patrimônio" {{ old('categoria') == 'Patrimônio' ? 'selected' : '' }}>Patrimônio</option>
+                            <option value="Outro" {{ old('categoria') == 'Outro' ? 'selected' : '' }}>Outro</option>
                         </select>
                     </div>
                 </div>
@@ -81,7 +103,9 @@
                         <small class="form-text text-muted">Você pode selecionar várias imagens.</small>
                     </div>
                 </div>
-            </fieldset> <div class="row mt-4 pt-3 border-top">
+            </fieldset>
+
+            <div class="row mt-4 pt-3 border-top">
                 <div class="col d-flex justify-content-between align-items-center">
                     <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='{{ url('/dashboard') }}'">
                         <i class="bi bi-arrow-left"></i> Voltar
@@ -98,5 +122,31 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const localSelect = document.getElementById('localizacaoSelect');
+        const outroLocalContainer = document.getElementById('outroLocalContainer');
+        const outroLocalInput = document.getElementById('localizacao_outra');
+
+        function toggleOutroLocal(selectedValue) {
+            if (selectedValue === 'Outro') {
+                outroLocalContainer.style.display = 'flex'; // 'flex' para manter o alinhamento do bootstrap
+                outroLocalInput.required = true;
+            } else {
+                outroLocalContainer.style.display = 'none';
+                outroLocalInput.required = false;
+                outroLocalInput.value = ''; // Limpa o campo se o usuário mudar de ideia
+            }
+        }
+
+        // Verifica o estado inicial (caso a página recarregue com erro de validação)
+        toggleOutroLocal(localSelect.value);
+
+        // Adiciona o listener para mudanças
+        localSelect.addEventListener('change', function() {
+            toggleOutroLocal(this.value);
+        });
+    });
+</script>
 </body>
 </html>
