@@ -67,8 +67,11 @@ Route::post('/admin/usuarios/{user}/unblock', [UsuarioController::class, 'unbloc
 // --- ADIÇÃO: ROTA PARA BLOQUEAR O UTILIZADOR ---
 Route::post('/admin/users/{id}/block', [AdminController::class, 'blockUser'])->name('admin.user.block');
 
-// --- ADIÇÃO: ROTA PARA EXCLUIR A OCORRÊNCIA ---
-Route::delete('/admin/ocorrencias/{id}', [AdminController::class, 'destroyOcorrencia'])->name('admin.ocorrencias.destroy');
-
 // NOVA ROTA PUT PARA ATUALIZAR O STATUS
 Route::put('/admin/ocorrencias/{id}/status', [AdminController::class, 'updateOcorrenciaStatus'])->name('admin.ocorrencias.updateStatus');
+
+// --- NOVA ROTA PARA O ADMIN AVALIAR O RELATOR (USUÁRIO) ---
+Route::post('/admin/ocorrencias/{id}/avaliar-relator', [AdminController::class, 'avaliarRelator'])->name('admin.ocorrencias.avaliarRelator');
+
+// --- ADIÇÃO: ROTA PARA EXCLUIR A OCORRÊNCIA ---
+Route::delete('/admin/ocorrencias/{id}', [AdminController::class, 'destroyOcorrencia'])->name('admin.ocorrencias.destroy');

@@ -65,7 +65,7 @@
                                     if ($score <= 0) {
                                         $reputacaoTexto = 'Bloqueado';
                                         $colorClass = 'text-danger fw-bold';
-                                    } elseif ($score < 55) {
+                                    } elseif ($score < 50) {
                                         $reputacaoTexto = 'Ruim';
                                         $colorClass = 'text-danger';
                                     } elseif ($score < 75) {
@@ -147,13 +147,73 @@
                 </div>
                 <div class="row mt-4">
                     <div class="col d-flex justify-content-end">
-                        <button class="btn btn-primary" type="submit"><i class="bi bi-check-circle"></i> Salvar Alterações</button>
+                        <button class="btn btn-dark" type="submit"><i class="bi bi-check-circle"></i> Salvar Alterações</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 
+    @if ($ocorrencia->status == 'Resolvido')
+        
+        @if (!$relatorJaAvaliado)
+            <div class="card mb-4">
+                <div class="card-header fw-bold">
+                    Avaliar Relator (Opcional)
+                </div>
+                <div class="card-body">
+                    <p>Após resolver esta ocorrência, você pode avaliar a qualidade do relato enviado pelo usuário <strong>{{ $ocorrencia->relator->name ?? 'Usuário Deletado' }}</strong>. Esta nota atualizará o "Score de Reputação" dele.</p>
+            
+                    <form action="{{ route('admin.ocorrencias.avaliarRelator', $ocorrencia->id) }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="nota" class="form-label fw-bold">Nota (1-5)</label>
+                            <select name="nota" id="nota" class="form-select" required 
+                                    @if(!$ocorrencia->relator || $ocorrencia->relator->id === auth()->id()) disabled @endif>
+                                <option value="" disabled selected>Selecione uma nota...</option>
+                                <option value="1">1 - Péssimo (Relato inútil/spam. Define Score 0)</option>
+                                <option value="2">2 - Ruim (Relato com pouca informação. Define Score 25)</option>
+                                <option value="3">3 - Regular (Relato mediano. Define Score 50)</option>
+                                <option value="4">4 - Bom (Relato útil e claro. Define Score 75)</option>
+                                <option value="5">5 - Excelente (Relato perfeito e detalhado. Define Score 100)</option>
+                            </select>
+                        </div>
+
+                        @if(!$ocorrencia->relator)
+                            <div class="alert alert-warning small">O usuário original deste relato foi excluído. Não é possível avaliá-lo.</div>
+                        @elseif($ocorrencia->relator->id === auth()->id())
+                            <div class="alert alert-warning small">Você não pode avaliar um relato feito por você mesmo.</div>
+                        @else
+                            <button type="submit" class="btn btn-dark">
+                                <i class="bi bi-star-fill me-1"></i>
+                                Salvar Avaliação do Relator
+                            </button>
+                        @endif
+                    </form>
+                </div>
+            </div>
+        @else
+            <div class="card mb-4">
+                <div class="card-header fw-bold">
+                    Relator Avaliado
+                </div>
+                <div class="card-body">
+                    <p class="text-success fw-bold">
+                        <i class="bi bi-check-circle-fill me-1"></i>
+                        Você já avaliou o relator para esta ocorrência.
+                    </p>
+                    @php
+                        // Encontra o registro da avaliação no histórico para exibir os detalhes
+                        $avaliacaoLog = $ocorrencia->historico->firstWhere('status_novo', 'Relator Avaliado');
+                    @endphp
+                    @if ($avaliacaoLog && $avaliacaoLog->comentario)
+                        <p class="mb-0"><strong>Detalhes da Avaliação:</strong> {{ $avaliacaoLog->comentario }}</p>
+                        <small class="text-muted">Avaliado por: {{ $avaliacaoLog->admin->name ?? 'Admin' }} em {{ $avaliacaoLog->created_at->format('d/m/Y H:i') }}</small>
+                    @endif
+                </div>
+            </div>
+        @endif
+    @endif
     @if ($ocorrencia->status == 'Resolvido' || $ocorrencia->status == 'Fechado')
         <div class="card mb-4">
             <div class="card-header fw-bold">Avaliação do Usuário</div>
@@ -173,12 +233,15 @@
             </div>
         </div>
     @endif
+    
     @if(session('success'))
         <div class="alert alert-success mt-3">
             {{ session('success') }}
         </div>
     @endif
-</div> <div class="modal fade" id="historicoModal" tabindex="-1" aria-labelledby="historicoModalLabel" aria-hidden="true">
+</div> 
+
+<div class="modal fade" id="historicoModal" tabindex="-1" aria-labelledby="historicoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header"><h5 class="modal-title" id="historicoModalLabel">Histórico da Ocorrência</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
@@ -219,27 +282,22 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Lógica para o botão de EXCLUIR OCORRÊNCIA (mantida)
-        const excluirBtn = document.getElementById('excluirBtn');
-        if(excluirBtn) {
-            excluirBtn.addEventListener('click', function() {
-                if (confirm('Tem certeza que deseja excluir esta ocorrência? Esta ação não pode ser desfeita.')) {
-                    // O formulário de exclusão será submetido
-                } else {
-                    event.preventDefault(); // Impede o submit se o usuário cancelar
-                }
-            });
-        }
+        // CORREÇÃO: A lógica 'confirm' já está no 'onsubmit' dos formulários,
+        // então o JavaScript extra para 'excluirBtn' não é necessário e estava incompleto.
+        // A lógica 'onsubmit' no HTML já cuida disso.
 
         // Lógica para EXPANDIR A IMAGEM NO MODAL (mantida)
         const thumbnails = document.querySelectorAll('.thumbnail-clicavel');
         const imagemNoModal = document.getElementById('imagemExpandida');
-        thumbnails.forEach(function(thumb) {
-            thumb.addEventListener('click', function() {
-                const imgSrc = this.getAttribute('src');
-                imagemNoModal.setAttribute('src', imgSrc);
+        
+        if (imagemNoModal) {
+            thumbnails.forEach(function(thumb) {
+                thumb.addEventListener('click', function() {
+                    const imgSrc = this.getAttribute('src');
+                    imagemNoModal.setAttribute('src', imgSrc);
+                });
             });
-        });
+        }
     });
 </script>
 </body>

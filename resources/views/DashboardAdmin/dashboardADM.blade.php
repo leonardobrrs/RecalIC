@@ -192,9 +192,6 @@
                         <input type="text" class="form-control" name="search" id="searchField" value="{{ request('search') }}" placeholder="Pesquisar por descrição, nome...">
                     </div>
                     <div class="col-12 text-end mt-4">
-                        <a href="{{ url('/admin/dashboard') }}" class="btn btn-outline-secondary">
-                            Mostrar Todos
-                        </a>
                         <button type="submit" class="btn btn-dark">Filtrar</button>
                     </div>
                 </div>

@@ -85,18 +85,47 @@ class OcorrenciaController extends Controller
 
     public function show(string $id)
     {
-        // Busca a ocorrência pelo ID ou falha (mostra erro 404 se não encontrar)
-        $ocorrencia = Ocorrencia::findOrFail($id);
+        // --- INÍCIO DA ALTERAÇÃO ---
+        
+        // 1. Garante que as relações e o admin do histórico sejam carregados
+        $ocorrencia = Ocorrencia::with([
+            'anexos',
+            'avaliacao',
+            'historico.admin' // Garante que o admin de cada log seja carregado
+        ])
+        ->where('user_id', auth()->id()) // Garante que o usuário só veja o que é dele
+        ->findOrFail($id); // Falha se não encontrar ou não for do usuário
 
-        // Retorna a view e passa a ocorrência encontrada para ela
-        return view('DashboardUsuario.relato', ['ocorrencia' => $ocorrencia]);
+        // 2. Procura pelo feedback específico do admin
+        //
+        $adminFeedback = $ocorrencia->historico->firstWhere('status_novo', 'Relator Avaliado'); 
+        
+        // 3. Passa o feedback (se existir) para a view
+        return view('DashboardUsuario.relato', [
+            'ocorrencia' => $ocorrencia,
+            'adminFeedback' => $adminFeedback // Variável nova
+        ]);
+        // --- FIM DA ALTERAÇÃO ---
     }
 
-    public function historico(string $id)
+public function historico(string $id)
     {
-        $ocorrencia = Ocorrencia::findOrFail($id);
+        // 1. Garante que as relações e o admin do histórico sejam carregados
+        $ocorrencia = Ocorrencia::with([
+            'historico.admin' // Garante que o admin de cada log seja carregado
+        ])
+        ->where('user_id', auth()->id()) // Garante que o usuário só veja o que é dele
+        ->findOrFail($id); // Falha se não encontrar ou não for do usuário
 
-        return view('DashboardUsuario.detalhesRelato', ['ocorrencia' => $ocorrencia]);
+        // 2. Procura pelo feedback específico do admin
+        //
+        $adminFeedback = $ocorrencia->historico->firstWhere('status_novo', 'Relator Avaliado'); 
+        
+        // 3. Passa o feedback (se existir) para a view de histórico
+        return view('DashboardUsuario.detalhesRelato', [ // Verifique se este é o nome correto da view
+            'ocorrencia' => $ocorrencia,
+            'adminFeedback' => $adminFeedback // Variável nova
+        ]);
     }
 
     public function storeAvaliacao(Request $request, string $id)
