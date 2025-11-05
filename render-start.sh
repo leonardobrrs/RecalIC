@@ -5,6 +5,10 @@ set -e
 
 # 1. Limpa os Caches (usando caminhos completos)
 echo "Limpando caches..."
+/usr/bin/php8.3 /var/www/html/artisan config:clear
+/usr/bin/php8.3 /var/www/html/artisan route:clear
+/usr/bin/php8.3 /var/www/html/artisan view:clear
+
 /usr/bin/php8.3 /var/www/html/artisan config:cache
 /usr/bin/php8.3 /var/www/html/artisan route:cache
 /usr/bin/php8.3 /var/www/html/artisan view:cache

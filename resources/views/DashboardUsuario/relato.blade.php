@@ -73,7 +73,7 @@
                 <div class="row g-2" style="max-width: 400px;">
                     @forelse ($ocorrencia->anexos as $anexo)
                         <div class="col-4">
-                            <img src="{{ Storage::url($anexo->file_path) }}" alt="Anexo da ocorrência" class="img-thumbnail thumbnail-img thumbnail-clicavel" data-bs-toggle="modal" data-bs-target="#imagemModal">
+                            <img src="{{ asset('storage/' . $anexo->file_path) }}" alt="Anexo da ocorrência" class="img-thumbnail thumbnail-img thumbnail-clicavel" data-bs-toggle="modal" data-bs-target="#imagemModal">
                         </div>
                     @empty
                         <div class="col-12">
