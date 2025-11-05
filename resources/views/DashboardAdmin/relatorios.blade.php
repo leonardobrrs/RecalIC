@@ -36,6 +36,7 @@
         .sidebar .nav-button.active { background-color: #dee2e6; font-weight: bold; }
         .main-content { margin-left: 280px; padding: 40px; }
         .kpi-card .card-title { font-size: 2.5rem; font-weight: 700; }
+        .kpi-card .card-subtitle { font-size: 0.85rem; } /* Subtítulo para notas */
     </style>
 </head>
 <body>
@@ -61,19 +62,41 @@
     <div class="main-content flex-grow-1">
         <h2 class="mb-4">Relatórios e Estatísticas</h2>
 
-        <div class="card shadow-sm mb-4">
-        </div>
-
-        <div class="row">
-            <div class="col-md-3">
+        <div class="row g-4">
+            <div class="col-md-4">
                 <div class="card kpi-card text-center shadow-sm h-100">
                     <div class="card-body">
                         <h3 class="card-title text-primary">{{ $totalOcorrencias ?? 0 }}</h3>
-                        <p class="card-text text-muted">Total de Ocorrências</p>
+                        <p class="card-text text-muted">Total de Ocorrências Válidas</p>
+                        <span class="card-subtitle text-muted">(Excluindo {{ $totalInvalidas ?? 0 }} inválidas)</span>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+
+            <div class="col-md-4">
+                <div class="card kpi-card text-center shadow-sm h-100">
+                    <div class="card-body">
+                        <h3 class="card-title" style="color: #fd7e14;">
+                            {{ $notaMedia ? number_format($notaMedia, 1) : 'N/A' }}
+                            <span style="font-size: 1.5rem; color: #6c757d;">/ 5</span>
+                        </h3>
+                        <p class="card-text text-muted">Nota Média das Avaliações</p>
+                        <span class="card-subtitle text-muted">({{ $totalAvaliacoes ?? 0 }} avaliações recebidas)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card kpi-card text-center shadow-sm h-100">
+                    <div class="card-body">
+                        <h3 class="card-title text-info" style="font-size: 1.8rem; padding-top: 10px;">{{ $tempoMedioFormatado }}</h3>
+                        <p class="card-text text-muted" style="margin-top: 8px;">Tempo Médio de Resolução</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-1"> <div class="col-md-4">
                 <div class="card kpi-card text-center shadow-sm h-100">
                     <div class="card-body">
                         <h3 class="card-title text-success">{{ $ocorrenciasResolvidas ?? 0 }}</h3>
@@ -81,24 +104,25 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+
+            <div class="col-md-4">
                 <div class="card kpi-card text-center shadow-sm h-100">
                     <div class="card-body">
                         <h3 class="card-title text-warning">{{ $ocorrenciasPendentes ?? 0 }}</h3>
-                        <p class="card-text text-muted">Pendentes</p>
+                        <p class="card-text text-muted">Pendentes (Abertas + Em Análise)</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+
+            <div class="col-md-4">
                 <div class="card kpi-card text-center shadow-sm h-100">
                     <div class="card-body">
-                        <h3 class="card-title text-info" style="font-size: 1.8rem;">{{ $tempoMedioFormatado }}</h3>
-                        <p class="card-text text-muted">Tempo Médio de Resolução</p>
+                        <h3 class="card-title" style="color: #6c757d;">{{ $totalInvalidas ?? 0 }}</h3>
+                        <p class="card-text text-muted">Ocorrências Inválidas</p>
                     </div>
                 </div>
             </div>
         </div>
-
         <div class="row mt-4">
             <div class="col-lg-6 mb-4">
                 <div class="card shadow-sm h-100">
