@@ -149,6 +149,7 @@
         <div class="profile-avatar">{{ substr(auth()->user()->name, 0, 1) }}</div>
         <h5>{{ explode(' ', auth()->user()->name)[0] }}</h5>
         <a href="{{ url('/admin/dashboard') }}" class="nav-button">Ocorrências</a>
+        <a href="{{ url('/admin/usuarios') }}" class="nav-button">Usuários</a>
         <a href="{{ url('/admin/relatorios') }}" class="nav-button">Relatórios</a>
         <div class="sidebar-footer">
             <form action="{{ route('admin.logout') }}" method="POST">
@@ -218,7 +219,7 @@
                                 <strong>Status:</strong> <span class="status">{{ $ocorrencia->status }}</span> <br>
                                 <strong>Categoria:</strong> <span class="category">{{ $ocorrencia->categoria }}</span> <br>
                                 <strong>Data de abertura:</strong> <span class="date">{{ $ocorrencia->created_at->format('d/m/Y') }}</span> <br>
-                                <strong>Relatado por:</strong> {{ $ocorrencia->relator->name ?? 'Usuário anônimo' }}
+                                <strong>Relatado por:</strong> {{ $ocorrencia->relator->name ?? 'Usuário deletado' }}
 
                                 @php
                                     $score = $ocorrencia->relator->reputation_score ?? 100;

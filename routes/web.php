@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\RelatorioController;
+use App\Http\Controllers\Admin\UsuarioController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\OcorrenciaController;
@@ -52,8 +53,16 @@ Route::post('/admin/cadastro', [AuthController::class, 'adminRegister']);
 Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 Route::get('/admin/ocorrencias/{id}', [AdminController::class, 'showOcorrencia'])->name('admin.ocorrencias.show');
 Route::get('/admin/relatorios', [RelatorioController::class, 'index'])->name('admin.relatorios');
-
 Route::post('/admin/logout', [AuthController::class, 'adminLogout'])->name('admin.logout');
+
+// --- ROTAS DE GESTÃO DE UTILIZADORES ---
+Route::get('/admin/usuarios', [UsuarioController::class, 'index'])->name('admin.usuarios.index');
+Route::delete('/admin/usuarios/{user}', [UsuarioController::class, 'destroy'])->name('admin.usuarios.destroy');
+
+// --- ROTAS NOVAS ADICIONADAS ---
+Route::post('/admin/usuarios/{user}/toggle-role', [UsuarioController::class, 'toggleRole'])->name('admin.usuarios.toggleRole');
+Route::post('/admin/usuarios/{user}/block', [UsuarioController::class, 'block'])->name('admin.usuarios.block');
+Route::post('/admin/usuarios/{user}/unblock', [UsuarioController::class, 'unblock'])->name('admin.usuarios.unblock');
 
 // --- ADIÇÃO: ROTA PARA BLOQUEAR O UTILIZADOR ---
 Route::post('/admin/users/{id}/block', [AdminController::class, 'blockUser'])->name('admin.user.block');
