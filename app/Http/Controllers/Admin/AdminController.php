@@ -10,6 +10,9 @@ use App\Models\StatusHistorico;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Mail; // Para enviar o email
+use App\Mail\OcorrenciaStatusAtualizado; // O nosso "Envelope"
+use Illuminate\Support\Facades\Log; // Para registar erros
 
 class AdminController extends Controller
 {
@@ -108,8 +111,8 @@ class AdminController extends Controller
         $statusAnterior = $ocorrencia->status;
         $novoStatus = $validatedData['status'];
 
-        // 3. Cria o registro no histórico ANTES de atualizar a ocorrência
-        StatusHistorico::create([
+        // 3. Cria o registro no histórico E guarda numa variável
+        $novoHistorico = StatusHistorico::create([
             'ocorrencia_id' => $ocorrencia->id,
             'user_id' => Auth::id(), // ID do administrador logado
             'status_anterior' => $statusAnterior,
@@ -120,24 +123,41 @@ class AdminController extends Controller
         // 4. Atualiza o status na ocorrência principal
         $ocorrencia->status = $novoStatus;
 
-        // --- NOVA LÓGICA DE PENALIDADE ---
-        // Verifica se o novo status é 'Inválido' e se o status anterior não era 'Inválido' (para não penalizar múltiplas vezes)
+        // --- LÓGICA DE PENALIDADE ---
+        // Verifica se o novo status é 'Inválido' e se o status anterior não era 'Inválido'
         if ($novoStatus === 'Inválido' && $statusAnterior !== 'Inválido') {
             // Busca o usuário relator
             $relator = $ocorrencia->relator; // Usa o relacionamento que já existe
             if ($relator) {
-                // Diminui a pontuação (ajuste o valor da penalidade conforme necessário)
+                // Diminui a pontuação
                 $relator->reputation_score -= 20;
                 $relator->save(); // Salva a alteração no usuário
             }
         }
-        // --- FIM DA NOVA LÓGICA ---
+        // --- FIM DA LÓGICA DE PENALIDADE ---
 
         $ocorrencia->save();
 
+        // --- ADIÇÃO: LÓGICA DE ENVIO DE EMAIL ---
+        try {
+            // Carrega os relacionamentos necessários para o email
+            $novoHistorico->load('ocorrencia.relator');
+            $relator = $novoHistorico->ocorrencia->relator;
+
+            // Envia o email apenas se o relator existir e tiver um email
+            if ($relator && $relator->email) {
+                Mail::to($relator->email)->send(new OcorrenciaStatusAtualizado($novoHistorico));
+            }
+        } catch (\Exception $e) {
+            // Se o envio de email falhar (ex: Mailtrap offline),
+            // não quebra a aplicação, apenas regista o erro.
+            Log::error('Falha ao enviar email de notificação de status: ' . $e->getMessage());
+        }
+        // --- FIM DA ADIÇÃO ---
+
         // 5. Redireciona de volta para a página de detalhes com mensagem de sucesso
         return redirect()->route('admin.ocorrencias.show', $ocorrencia->id)
-                         ->with('success', 'Status da ocorrência atualizado com sucesso!');
+                         ->with('success', 'Status da ocorrência atualizado! Notificação enviada ao utilizador.');
     }
 
     public function destroyOcorrencia(string $id)
