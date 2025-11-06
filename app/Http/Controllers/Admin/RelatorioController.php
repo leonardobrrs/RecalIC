@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Ocorrencia;
-use App\Models\Avaliacao; // Certifique-se que Avaliacao está importado
+use App\Models\Avaliacao; // <-- 1. IMPORTADO
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon; // Importar a classe Carbon para manipulação de datas
 
@@ -17,13 +17,14 @@ class RelatorioController extends Controller
     public function index(Request $request)
     {
         // --- KPIs (Contagens) ---
-        // Contagens separadas
+        // 2. ALTERADO - Contagens agora separadas
         $ocorrenciasResolvidas = Ocorrencia::where('status', 'Resolvido')->count();
         $ocorrenciasPendentes = Ocorrencia::whereIn('status', ['Aberto', 'Em Análise'])->count();
-        $totalInvalidas = Ocorrencia::where('status', 'Inválido')->count();
+        $totalInvalidas = Ocorrencia::where('status', 'Inválido')->count(); // <-- 3. ADICIONADO
 
-        // Total VÁLIDO (como solicitado)
-        $totalOcorrencias = $ocorrenciasResolvidas + $ocorrenciasPendentes;
+        // Total de ocorrências VÁLIDAS (exclui inválidas)
+        $totalOcorrencias = $ocorrenciasResolvidas + $ocorrenciasPendentes; // <-- 4. ALTERADO O CÁLCULO
+
 
         // --- CÁLCULO DO TEMPO MÉDIO DE RESOLUÇÃO ---
         // (Seu código original inalterado)
@@ -33,7 +34,7 @@ class RelatorioController extends Controller
 
         $totalSegundosParaResolver = 0;
         $countResolvidasComHistorico = 0;
-        $tempoMedioFormatado = "-"; // Valor padrão
+        $tempoMedioFormatado = "-"; 
 
         foreach ($ocorrenciasResolvidasComHistorico as $ocorrencia) {
             $historicoResolucao = $ocorrencia->historico
@@ -49,47 +50,43 @@ class RelatorioController extends Controller
                 $countResolvidasComHistorico++;
             }
         }
-        
+
         if ($countResolvidasComHistorico > 0) {
             $mediaSegundos = $totalSegundosParaResolver / $countResolvidasComHistorico;
             $tempoMedioFormatado = Carbon::now()->subSeconds($mediaSegundos)->diffForHumans(Carbon::now(), true, true, 2);
         }
         // --- FIM DO CÁLCULO ---
 
-        // --- NOTA MÉDIA (NOVO) ---
+
+        // --- 5. NOVA SEÇÃO: NOTA MÉDIA ---
         $notaMedia = Avaliacao::avg('nota');
         $totalAvaliacoes = Avaliacao::count();
-        // --- FIM NOTA MÉDIA ---
+        // --- FIM DA NOVA SEÇÃO ---
 
 
-        // --- INÍCIO DA ALTERAÇÃO ---
-
-        // --- Dados para Gráficos (Filtrando "Inválido") ---
-        $ocorrenciasPorCategoria = Ocorrencia::where('status', '!=', 'Inválido')
-            ->select('categoria', DB::raw('count(*) as total'))
+        // --- Dados para Gráficos ---
+        // (Seu código original inalterado)
+        $ocorrenciasPorCategoria = Ocorrencia::select('categoria', DB::raw('count(*) as total'))
             ->groupBy('categoria')
             ->pluck('total', 'categoria');
-
-        $locaisMaisRelatos = Ocorrencia::where('status', '!=', 'Inválido')
-            ->select('localizacao', DB::raw('count(*) as total'))
+        $locaisMaisRelatos = Ocorrencia::select('localizacao', DB::raw('count(*) as total'))
             ->groupBy('localizacao')
             ->orderByDesc('total')
             ->limit(5)
             ->pluck('total', 'localizacao');
-            
-        // --- FIM DA ALTERAÇÃO ---
 
         // Envia todos os dados para a view
+        // --- 6. ATUALIZADO O ARRAY DE RETORNO ---
         return view('DashboardAdmin.relatorios', [
-            'totalOcorrencias' => $totalOcorrencias, // Válido
+            'totalOcorrencias' => $totalOcorrencias, // Este é o total VÁLIDO
             'ocorrenciasResolvidas' => $ocorrenciasResolvidas,
             'ocorrenciasPendentes' => $ocorrenciasPendentes,
-            'totalInvalidas' => $totalInvalidas, // Novo
+            'totalInvalidas' => $totalInvalidas, // Variável nova
             'tempoMedioFormatado' => $tempoMedioFormatado,
-            'ocorrenciasPorCategoria' => $ocorrenciasPorCategoria, // Filtrado
-            'locaisMaisRelatos' => $locaisMaisRelatos, // Filtrado
-            'notaMedia' => $notaMedia, // Novo
-            'totalAvaliacoes' => $totalAvaliacoes, // Novo
+            'ocorrenciasPorCategoria' => $ocorrenciasPorCategoria,
+            'locaisMaisRelatos' => $locaisMaisRelatos,
+            'notaMedia' => $notaMedia, // Variável nova
+            'totalAvaliacoes' => $totalAvaliacoes, // Variável nova
         ]);
     }
 }
