@@ -3,6 +3,9 @@
 # Define 'set -e' para falhar se algum comando falhar
 set -e
 
+echo "Reiniciando a fila..."
+/usr/bin/php8.3 /var/www/html/artisan queue:restart
+
 # 1. Limpa os Caches (usando caminhos completos)
 echo "Limpando caches..."
 /usr/bin/php8.3 /var/www/html/artisan config:clear
@@ -21,6 +24,8 @@ echo "Criando link de storage..."
 echo "Executando migrações..."
 /usr/bin/php8.3 /var/www/html/artisan migrate --force
 
-# 4. Inicia o Servidor (Ouve na porta do Render)
-echo "Iniciando o servidor..."
-/usr/bin/php8.3 /var/www/html/artisan serve --host 0.0.0.0 --port $PORT
+# 5. Inicia o Servidor de Produção (PHP-FPM) e o Queue Worker
+echo "Iniciando o supervisor (servidor web + workers)..."
+# Este é o comando que o seu Dockerfile está preparado para executar.
+# Ele inicia o 'php-fpm' (o servidor web) E o 'queue:work' (para os e-mails).
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
