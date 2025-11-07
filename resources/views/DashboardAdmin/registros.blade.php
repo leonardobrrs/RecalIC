@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Detalhes do Registro</title>
+    <title>Detalhes do Relato</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
@@ -128,15 +128,10 @@
     <div class="main-content flex-grow-1">
 
         <div class="container">
-            
+            <h2 class="mb-4">Detalhes do Relato</h2>
             <div class="card mb-4">
-                <div class="card-header fw-bold d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">DETALHES DO RELATO</h4>
-                    <span>Status Atual: <span class="badge bg-primary">{{ $ocorrencia->status }}</span></span>
-                </div>
-
+                <div class="card-header fw-bold">Status Atual: {{ $ocorrencia->status }}</div>
                 <div class="card-body">
-                    
                     <div class="row">
                         <div class="col-md-7">
                             <div class="row mb-3 align-items-center">
@@ -185,7 +180,6 @@
                             </div>
                         </div>
                         <div class="col-md-5">
-                            <h6 class="fw-semibold">Anexos:</h6>
                             <div class="row g-2">
                                 @forelse ($ocorrencia->anexos as $anexo)
                                     <div class="col-6">
@@ -226,10 +220,11 @@
                             </button>
                         </div>
                     </div>
-
-                    <hr class="my-4">
-
-                    <h4 class="mb-3">Ações Administrativas</h4>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header fw-bold">Ações Administrativas</div>
+                <div class="card-body">
                     <form id="formAcoesAdmin" action="{{ route('admin.ocorrencias.updateStatus', $ocorrencia->id) }}" method="POST">
                         @csrf @method('PUT') <div class="row mb-3 align-items-center">
                             <div class="col-md-3"><label class="form-label fw-semibold">Alterar Status:</label></div>
@@ -254,13 +249,19 @@
                             </div>
                         </div>
                     </form>
+                </div>
+            </div>
 
-                    <hr class="my-4">
-
-                    @if ($ocorrencia->status == 'Resolvido')
-                        @if (!$relatorJaAvaliado)
-                            <h4 class="fw-bold mb-3">Avaliar Relator (Opcional)</h4>
+            @if ($ocorrencia->status == 'Resolvido')
+                
+                @if (!$relatorJaAvaliado)
+                    <div class="card mb-4">
+                        <div class="card-header fw-bold">
+                            Avaliar Relator (Opcional)
+                        </div>
+                        <div class="card-body">
                             <p>Após resolver esta ocorrência, você pode avaliar a qualidade do relato enviado pelo usuário <strong>{{ $ocorrencia->relator->name ?? 'Usuário Deletado' }}</strong>. Esta nota atualizará o "Score de Reputação" dele.</p>
+                    
                             <form action="{{ route('admin.ocorrencias.avaliarRelator', $ocorrencia->id) }}" method="POST">
                                 @csrf
                                 <div class="mb-3">
@@ -275,6 +276,7 @@
                                         <option value="5">5 - Excelente (Relato perfeito e detalhado. Define Score 100)</option>
                                     </select>
                                 </div>
+
                                 @if(!$ocorrencia->relator)
                                     <div class="alert alert-warning small">O usuário original deste relato foi excluído. Não é possível avaliá-lo.</div>
                                 @elseif($ocorrencia->relator->id === auth()->id())
@@ -286,28 +288,34 @@
                                     </button>
                                 @endif
                             </form>
-                        @else
-                            <h4 class="fw-bold mb-3">Relator Avaliado</h4>
+                        </div>
+                    </div>
+                @else
+                    <div class="card mb-4">
+                        <div class="card-header fw-bold">
+                            Relator Avaliado
+                        </div>
+                        <div class="card-body">
                             <p class="text-success fw-bold">
                                 <i class="bi bi-check-circle-fill me-1"></i>
                                 Você já avaliou o relator para esta ocorrência.
                             </p>
                             @php
+                                // Encontra o registro da avaliação no histórico para exibir os detalhes
                                 $avaliacaoLog = $ocorrencia->historico->firstWhere('status_novo', 'Relator Avaliado');
                             @endphp
                             @if ($avaliacaoLog && $avaliacaoLog->comentario)
                                 <p class="mb-0"><strong>Detalhes da Avaliação:</strong> {{ $avaliacaoLog->comentario }}</p>
                                 <small class="text-muted">Avaliado por: {{ $avaliacaoLog->admin->name ?? 'Admin' }} em {{ $avaliacaoLog->created_at->format('d/m/Y H:i') }}</small>
                             @endif
-                        @endif
-                    @endif
-
-                    @if ($ocorrencia->status == 'Resolvido' || $ocorrencia->status == 'Fechado')
-                        <hr class="my-4">
-                    @endif
-
-                    @if ($ocorrencia->status == 'Resolvido' || $ocorrencia->status == 'Fechado')
-                        <h4 class="fw-bold mb-3">Avaliação do Usuário</h4>
+                        </div>
+                    </div>
+                @endif
+            @endif
+            @if ($ocorrencia->status == 'Resolvido' || $ocorrencia->status == 'Fechado')
+                <div class="card mb-4">
+                    <div class="card-header fw-bold">Avaliação do Usuário</div>
+                    <div class="card-body">
                         @if ($ocorrencia->avaliacao)
                             <div class="row mb-3 align-items-center">
                                 <div class="col-sm-4"><label class="form-label fw-semibold">Nota:</label></div>
@@ -320,17 +328,16 @@
                         @else
                             <p class="text-muted">Esta ocorrência foi resolvida, mas o usuário ainda não forneceu uma avaliação.</p>
                         @endif
-                    @endif
-                    
-                    @if(session('success'))
-                        <div class="alert alert-success mt-4">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
+                    </div>
                 </div>
+            @endif
+            
+            @if(session('success'))
+                <div class="alert alert-success mt-3">
+                    {{ session('success') }}
                 </div>
-            </div> 
+            @endif
+        </div> 
         </div>
     </div>
 <div class="modal fade" id="historicoModal" tabindex="-1" aria-labelledby="historicoModalLabel" aria-hidden="true">
@@ -374,7 +381,11 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Lógica para EXPANDIR A IMAGEM NO MODAL
+        // CORREÇÃO: A lógica 'confirm' já está no 'onsubmit' dos formulários,
+        // então o JavaScript extra para 'excluirBtn' não é necessário e estava incompleto.
+        // A lógica 'onsubmit' no HTML já cuida disso.
+
+        // Lógica para EXPANDIR A IMAGEM NO MODAL (mantida)
         const thumbnails = document.querySelectorAll('.thumbnail-clicavel');
         const imagemNoModal = document.getElementById('imagemExpandida');
         
