@@ -75,10 +75,10 @@ Route::middleware('admin')->group(function () {
 // ROTA TEMPORÁRIA
 Route::get('/debug-email-config', function() {
     try {
-        echo "=== DEBUG CONFIGURAÇÃO RESEND ===<br>";
+        echo "=== DEBUG CONFIGURAÇÃO POSTMARK ===<br>";
         echo "MAIL_MAILER: " . config('mail.default') . "<br>";
-        echo "RESEND_API_KEY (env): " . (env('RESEND_API_KEY') ? '✅ CONFIGURADA' : '❌ NÃO CONFIGURADA') . "<br>";
-        echo "RESEND_API_KEY (config): " . (config('resend.api_key') ? '✅ CONFIGURADA' : '❌ NÃO CONFIGURADA') . "<br>";
+        echo "POSTMARK_TOKEN (env): " . (env('POSTMARK_TOKEN') ? '✅ CONFIGURADA' : '❌ NÃO CONFIGURADA') . "<br>";
+        echo "POSTMARK_TOKEN (config): " . (config('services.postmark.token') ? '✅ CONFIGURADA' : '❌ NÃO CONFIGURADA') . "<br>";
         echo "MAIL_FROM: " . config('mail.from.address') . "<br>";
 
         // Busca a ocorrência MAIS RECENTE e seu usuário
@@ -92,10 +92,10 @@ Route::get('/debug-email-config', function() {
             echo "Usuário: " . $user->name . " (" . $user->email . ")<br>";
             echo "Status atual: " . $ocorrencia->status . "<br>";
 
-            // Teste envio com Resend
-            \Mail::raw('Teste de notificação RecalIC com Resend - Esta é uma simulação de mudança de status', function($message) use ($user, $ocorrencia) {
+            // Teste envio com Postmark
+            Mail::raw('Teste de notificação RecalIC com Postmark - Esta é uma simulação de mudança de status', function($message) use ($user, $ocorrencia) {
                 $message->to($user->email)
-                    ->subject('✅ Teste Resend - Ocorrência #' . $ocorrencia->id);
+                    ->subject('✅ Teste Postmark - Ocorrência #' . $ocorrencia->id);
             });
 
             echo "<br>✅ E-mail teste ENVIADO para: " . $user->email;
@@ -108,6 +108,6 @@ Route::get('/debug-email-config', function() {
 
     } catch (\Exception $e) {
         echo "<br>❌ ERRO: " . $e->getMessage();
-        echo "<br>💡 Dica: Verifique se a API Key do Resend está correta";
+        echo "<br>💡 Dica: Verifique se o Postmark Token está correto";
     }
 });
