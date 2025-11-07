@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\OcorrenciaController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\PerfilController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +36,8 @@ Route::post('/ocorrencias/registrar', [OcorrenciaController::class, 'store'])->n
 Route::get('/ocorrencias/{id}', [OcorrenciaController::class, 'show'])->name('ocorrencias.show');
 Route::get('/ocorrencias/{id}/historico', [OcorrenciaController::class, 'historico'])->name('ocorrencias.historico');
 Route::post('/ocorrencias/{id}/avaliar', [OcorrenciaController::class, 'storeAvaliacao'])->name('ocorrencias.avaliar');
+Route::get('/perfil', [PerfilController::class, 'edit'])->name('perfil.edit');
+Route::put('/perfil', [PerfilController::class, 'update'])->name('perfil.update');
 
 
 // --- ROTAS DE LOGIN/CADASTRO DO ADMIN (PÚBLICAS) ---
