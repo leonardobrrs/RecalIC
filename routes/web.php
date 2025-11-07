@@ -71,3 +71,29 @@ Route::middleware('admin')->group(function () {
     Route::delete('/admin/ocorrencias/{id}', [AdminController::class, 'destroyOcorrencia'])->name('admin.ocorrencias.destroy');
 
 });
+
+// ROTA TEMPORÁRIA
+Route::get('/debug-email-config', function() {
+    try {
+        echo "=== DEBUG CONFIGURAÇÃO E-MAIL ===<br>";
+        echo "MAIL_MAILER: " . config('mail.default') . "<br>";
+        echo "MAIL_HOST: " . config('mail.mailers.smtp.host') . "<br>";
+        echo "MAIL_PORT: " . config('mail.mailers.smtp.port') . "<br>";
+        echo "MAIL_USERNAME: " . config('mail.mailers.smtp.username') . "<br>";
+        echo "MAIL_FROM: " . config('mail.from.address') . "<br>";
+
+        // Teste envio
+        $user = App\Models\User::first();
+        if ($user) {
+            \Mail::raw('Teste de configuração RecalIC', function($message) use ($user) {
+                $message->to($user->email)->subject('✅ Teste RecalIC - Configuração');
+            });
+            echo "<br>✅ E-mail teste ENVIADO para: " . $user->email;
+        } else {
+            echo "<br>❌ Nenhum usuário encontrado";
+        }
+
+    } catch (\Exception $e) {
+        echo "<br>❌ ERRO: " . $e->getMessage();
+    }
+});
