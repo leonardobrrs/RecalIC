@@ -112,9 +112,9 @@
                                     if ($score <= 0) {
                                         echo '<span class="badge bg-danger">Bloqueado</span>';
                                     } elseif ($score < 50) {
-                                        echo '<span class="badge bg-danger text-dark">Ruim</span>';
+                                        echo '<span class="badge bg-danger">Ruim</span>';
                                     } elseif ($score < 75) {
-                                        echo '<span class="badge bg-warning text-dark">Média</span>';
+                                        echo '<span class="badge bg-warning">Média</span>';
                                     } else {
                                         echo '<span class="badge bg-success">Boa</span>';
                                     }
