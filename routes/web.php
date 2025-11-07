@@ -75,20 +75,20 @@ Route::middleware('admin')->group(function () {
 // ROTA TEMPORÁRIA
 Route::get('/debug-email-config', function() {
     try {
-        echo "=== DEBUG CONFIGURAÇÃO E-MAIL ===<br>";
+        echo "=== DEBUG CONFIGURAÇÃO RESEND ===<br>";
         echo "MAIL_MAILER: " . config('mail.default') . "<br>";
-        echo "MAIL_HOST: " . config('mail.mailers.smtp.host') . "<br>";
-        echo "MAIL_PORT: " . config('mail.mailers.smtp.port') . "<br>";
-        echo "MAIL_USERNAME: " . config('mail.mailers.smtp.username') . "<br>";
+        echo "RESEND_API_KEY: " . (config('services.resend.key') ? '✅ CONFIGURADA' : '❌ NÃO CONFIGURADA') . "<br>";
         echo "MAIL_FROM: " . config('mail.from.address') . "<br>";
 
-        // Teste envio
+        // Teste envio com Resend
         $user = App\Models\User::first();
         if ($user) {
-            \Mail::raw('Teste de configuração RecalIC', function($message) use ($user) {
-                $message->to($user->email)->subject('✅ Teste RecalIC - Configuração');
+            \Mail::raw('Teste de configuração RecalIC com Resend', function($message) use ($user) {
+                $message->to($user->email)
+                    ->subject('✅ Teste Resend - RecalIC');
             });
             echo "<br>✅ E-mail teste ENVIADO para: " . $user->email;
+            echo "<br>📨 Verifique a caixa de entrada e spam!";
         } else {
             echo "<br>❌ Nenhum usuário encontrado";
         }
