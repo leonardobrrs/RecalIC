@@ -77,23 +77,37 @@ Route::get('/debug-email-config', function() {
     try {
         echo "=== DEBUG CONFIGURAÇÃO RESEND ===<br>";
         echo "MAIL_MAILER: " . config('mail.default') . "<br>";
-        echo "RESEND_API_KEY: " . (config('services.resend.key') ? '✅ CONFIGURADA' : '❌ NÃO CONFIGURADA') . "<br>";
+        echo "RESEND_API_KEY (env): " . (env('RESEND_API_KEY') ? '✅ CONFIGURADA' : '❌ NÃO CONFIGURADA') . "<br>";
+        echo "RESEND_API_KEY (config): " . (config('resend.api_key') ? '✅ CONFIGURADA' : '❌ NÃO CONFIGURADA') . "<br>";
         echo "MAIL_FROM: " . config('mail.from.address') . "<br>";
 
-        // Teste envio com Resend
-        $user = App\Models\User::first();
-        if ($user) {
-            \Mail::raw('Teste de configuração RecalIC com Resend', function($message) use ($user) {
+        // Busca a ocorrência MAIS RECENTE e seu usuário
+        $ocorrencia = App\Models\Ocorrencia::with('relator')->latest()->first();
+
+        if ($ocorrencia && $ocorrencia->relator) {
+            $user = $ocorrencia->relator;
+
+            echo "<br>📊 Dados do teste:<br>";
+            echo "Ocorrência: #" . $ocorrencia->id . "<br>";
+            echo "Usuário: " . $user->name . " (" . $user->email . ")<br>";
+            echo "Status atual: " . $ocorrencia->status . "<br>";
+
+            // Teste envio com Resend
+            \Mail::raw('Teste de notificação RecalIC com Resend - Esta é uma simulação de mudança de status', function($message) use ($user, $ocorrencia) {
                 $message->to($user->email)
-                    ->subject('✅ Teste Resend - RecalIC');
+                    ->subject('✅ Teste Resend - Ocorrência #' . $ocorrencia->id);
             });
+
             echo "<br>✅ E-mail teste ENVIADO para: " . $user->email;
             echo "<br>📨 Verifique a caixa de entrada e spam!";
+            echo "<br>🎯 Este é o usuário da ocorrência mais recente (#" . $ocorrencia->id . ")";
+
         } else {
-            echo "<br>❌ Nenhum usuário encontrado";
+            echo "<br>❌ Nenhuma ocorrência com usuário encontrada";
         }
 
     } catch (\Exception $e) {
         echo "<br>❌ ERRO: " . $e->getMessage();
+        echo "<br>💡 Dica: Verifique se a API Key do Resend está correta";
     }
 });
