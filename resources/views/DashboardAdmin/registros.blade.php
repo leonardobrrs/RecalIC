@@ -105,6 +105,108 @@
     .thumbnail-clicavel {
         cursor: pointer;
     }
+
+    /* === INÍCIO DAS REGRAS DE RESPONSIVIDADE (COPIADAS DO DASHBOARD) === */
+    
+    @media (max-width: 991.98px) {
+        .d-flex {
+            flex-direction: column;
+        }
+
+        .sidebar {
+            width: 100%;
+            height: auto;
+            position: relative; /* Remove a fixação */
+            flex-direction: row; /* Itens em linha */
+            justify-content: flex-start; /* Alterado */
+            align-items: center; /* Adicionado */
+            padding: 10px 15px;
+        }
+        
+        .sidebar .profile-avatar {
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            margin-bottom: 0;
+        }
+        
+        .sidebar h5 {
+            display: block; /* Garante que está visível */
+            margin-bottom: 0;
+            font-size: 1.1rem; /* Tamanho ajustado */
+            margin-left: 10px; /* Espaço entre avatar e nome */
+        }
+
+        .sidebar .nav-button {
+            width: auto;
+            padding: 8px 12px;
+            margin-bottom: 0;
+            margin-left: 10px;
+            font-size: 0.9rem;
+        }
+
+        .sidebar .sidebar-footer {
+            margin-top: 0;
+            width: auto;
+            padding-bottom: 0;
+            margin-left: auto; /* Empurra o "Sair" para a direita */
+        }
+
+        .sidebar .logout-button span {
+            display: none; /* Oculta texto "Sair" */
+        }
+        .sidebar .logout-button {
+            padding: 5px;
+            gap: 0;
+            justify-content: center;
+        }
+        .sidebar .logout-button .bi {
+            font-size: 1.3rem;
+            margin-right: 0;
+        }
+
+        .main-content {
+            margin-left: 0;
+            padding: 20px;
+            width: 100%; /* Garante 100% da largura */
+        }
+
+        /* Os cards de detalhes e formulários já empilham
+           automaticamente por causa do Bootstrap (col-md-*) */
+    }
+
+    @media (max-width: 576px) {
+        .sidebar {
+            flex-wrap: wrap; /* Permite que os botões quebrem linha */
+            justify-content: center;
+            gap: 10px;
+        }
+        .sidebar h5 {
+             /* Em telas muito pequenas, o nome pode quebrar o layout */
+             width: 100%; /* Ocupa a linha */
+             text-align: center; /* Centraliza */
+             margin-left: 0;
+             margin-right: 0;
+             margin-bottom: 10px; /* Espaço abaixo */
+             order: -1; /* Coloca o nome no topo */
+        }
+        .sidebar .profile-avatar {
+            display: none; /* Oculta avatar em telas muito pequenas (como antes) */
+        }
+        .sidebar .nav-button {
+            width: 45%; /* 2 botões por linha */
+            margin-left: 0;
+            text-align: center;
+        }
+        .sidebar .sidebar-footer {
+            width: 100%;
+            text-align: center;
+            margin-top: 10px;
+            margin-left: 0; /* Reseta o margin-left */
+        }
+    }
+    /* === FIM DAS REGRAS DE RESPONSIVIDADE === */
+
 </style>
 
 <div class="d-flex">

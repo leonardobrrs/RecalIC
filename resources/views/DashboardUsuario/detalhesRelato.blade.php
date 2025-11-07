@@ -14,9 +14,124 @@
         .logout-button:hover { opacity: 1; color: white; }
         .profile-avatar { width: 150px; height: 150px; border-radius: 50%; background-color: #0a58ca; display: flex; align-items: center; justify-content: center; font-size: 70px; font-weight: bold; color: white; margin-bottom: 20px; }
         .sidebar h5 { margin-bottom: 0.5rem; }
+        
+        /* Classe adicionada para controlar a margem e a exibição responsiva */
+        .sidebar .reputation-text {
+             margin-bottom: 40px;
+        }
+
         .sidebar .nav-button { background-color: #f8f9fa; color: #343a40; border: none; border-radius: 20px; padding: 10px 20px; width: 90%; text-align: center; margin-bottom: 15px; text-decoration: none; font-weight: 500; transition: background-color 0.3s ease; }
         .sidebar .nav-button:hover { background-color: #e2e6ea; }
         .main-content { margin-left: 280px; padding: 40px; }
+
+        /* === INÍCIO DAS REGRAS DE RESPONSIVIDADE (IDÊNTICAS AO DASHBOARD DO USUÁRIO) === */
+        
+        @media (max-width: 991.98px) {
+            .d-flex {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative; /* Remove a fixação */
+                flex-direction: row; /* Itens em linha */
+                justify-content: flex-start; /* Alinha à esquerda */
+                align-items: center; 
+                padding: 10px 15px;
+            }
+            
+            .sidebar .profile-avatar {
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+                margin-bottom: 0;
+            }
+            
+            .sidebar h5 {
+                display: block; 
+                margin-bottom: 0;
+                font-size: 1.1rem; 
+                margin-left: 10px; 
+            }
+
+            .sidebar .reputation-text {
+                display: none; /* Oculta reputação no modo tablet */
+                margin-bottom: 0;
+            }
+
+            .sidebar .nav-button {
+                width: auto;
+                padding: 8px 12px;
+                margin-bottom: 0;
+                margin-left: 10px;
+                font-size: 0.9rem;
+            }
+
+            .sidebar .sidebar-footer {
+                margin-top: 0;
+                width: auto;
+                padding-bottom: 0;
+                margin-left: auto; /* Empurra o "Sair" para a direita */
+            }
+
+            .sidebar .logout-button span {
+                display: none; /* Oculta texto "Sair" */
+            }
+            .sidebar .logout-button {
+                padding: 5px;
+                gap: 0;
+                justify-content: center;
+            }
+            .sidebar .logout-button .bi {
+                font-size: 1.3rem;
+                margin-right: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                flex-wrap: wrap; /* Permite que os botões quebrem linha */
+                justify-content: center;
+                gap: 10px;
+            }
+            .sidebar h5 {
+                 width: 100%; 
+                 text-align: center; 
+                 margin-left: 0;
+                 margin-right: 0;
+                 margin-bottom: 10px; 
+                 order: -1; /* Coloca o nome no topo */
+            }
+            .sidebar .profile-avatar {
+                display: none; /* Oculta avatar em telas muito pequenas */
+            }
+            .sidebar .reputation-text {
+                display: block; /* Re-exibe a reputação */
+                width: 100%;
+                text-align: center;
+                margin-bottom: 10px;
+                order: -1; /* Coloca junto ao nome */
+            }
+            .sidebar .nav-button {
+                width: 90%; /* Botões ocupam a largura toda */
+                margin-left: 0;
+                text-align: center;
+            }
+            .sidebar .sidebar-footer {
+                width: 100%;
+                text-align: center;
+                margin-top: 10px;
+                margin-left: 0; /* Reseta o margin-left */
+            }
+        }
+        /* === FIM DAS REGRAS DE RESPONSIVIDADE === */
+
     </style>
 </head>
 <body>
@@ -42,7 +157,7 @@
                 $colorClass = 'badge bg-success'; // Verde
             }
         @endphp
-        <p class="text-white" style="margin-bottom: 40px;">Reputação: <span class="{{ $colorClass }}">{{ $reputacaoTexto }}</span></p>
+        <p class="text-white reputation-text">Reputação: <span class="{{ $colorClass }}">{{ $reputacaoTexto }}</span></p>
         <a href="{{ url('/dashboard') }}" class="nav-button">Meus Relatos</a>
         <a href="{{ url('/perfil') }}" class="nav-button">Meu Perfil</a>
         <a href="{{ url('/ocorrencias/registrar') }}" class="nav-button">Registrar nova ocorrência</a>

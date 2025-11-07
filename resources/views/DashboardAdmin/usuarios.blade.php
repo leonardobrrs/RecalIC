@@ -19,6 +19,108 @@
         .sidebar .nav-button:hover { background-color: #e2e6ea; }
         .sidebar .nav-button.active { background-color: #dee2e6; font-weight: bold; }
         .main-content { margin-left: 280px; padding: 40px; }
+
+        /* === INÍCIO DAS REGRAS DE RESPONSIVIDADE === */
+        
+        @media (max-width: 991.98px) {
+            .d-flex {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative; /* Remove a fixação */
+                flex-direction: row; /* Itens em linha */
+                justify-content: flex-start; /* Alinha à esquerda */
+                align-items: center; 
+                padding: 10px 15px;
+            }
+            
+            .sidebar .profile-avatar {
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+                margin-bottom: 0;
+            }
+            
+            .sidebar h5 {
+                display: block; 
+                margin-bottom: 0;
+                font-size: 1.1rem; 
+                margin-left: 10px; 
+            }
+
+            .sidebar .nav-button {
+                width: auto;
+                padding: 8px 12px;
+                margin-bottom: 0;
+                margin-left: 10px;
+                font-size: 0.9rem;
+            }
+
+            .sidebar .sidebar-footer {
+                margin-top: 0;
+                width: auto;
+                padding-bottom: 0;
+                margin-left: auto; /* Empurra o "Sair" para a direita */
+            }
+
+            .sidebar .logout-button span {
+                display: none; /* Oculta texto "Sair" */
+            }
+            .sidebar .logout-button {
+                padding: 5px;
+                gap: 0;
+                justify-content: center;
+            }
+            .sidebar .logout-button .bi {
+                font-size: 1.3rem;
+                margin-right: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            /* Faz os botões de ação da tabela não quebrarem linha tão fácil */
+            .table .btn-group {
+                flex-wrap: nowrap;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                flex-wrap: wrap; /* Permite que os botões quebrem linha */
+                justify-content: center;
+                gap: 10px;
+            }
+            .sidebar h5 {
+                 width: 100%; 
+                 text-align: center; 
+                 margin-left: 0;
+                 margin-right: 0;
+                 margin-bottom: 10px; 
+                 order: -1; /* Coloca o nome no topo */
+            }
+            .sidebar .profile-avatar {
+                display: none; /* Oculta avatar em telas muito pequenas */
+            }
+            .sidebar .nav-button {
+                width: 45%; /* 2 botões por linha */
+                margin-left: 0;
+                text-align: center;
+            }
+            .sidebar .sidebar-footer {
+                width: 100%;
+                text-align: center;
+                margin-top: 10px;
+                margin-left: 0; /* Reseta o margin-left */
+            }
+        }
+        /* === FIM DAS REGRAS DE RESPONSIVIDADE === */
+
     </style>
 </head>
 <body>
@@ -27,8 +129,7 @@
         <div class="profile-avatar">{{ substr(auth()->user()->name, 0, 1) }}</div>
         <h5>{{ explode(' ', auth()->user()->name)[0] }}</h5>
         <a href="{{ url('/admin/dashboard') }}" class="nav-button">Ocorrências</a>
-        <a href="{{ url('/admin/usuarios') }}" class="nav-button">Usuários</a>
-        <a href="{{ url('/admin/relatorios') }}" class="nav-button">Relatórios</a>
+        <a href="{{ url('/admin/usuarios') }}" class="nav-button active">Usuários</a> <a href="{{ url('/admin/relatorios') }}" class="nav-button">Relatórios</a>
         <div class="sidebar-footer">
             <form action="{{ route('admin.logout') }}" method="POST">
                 @csrf
@@ -84,97 +185,98 @@
 
         <div class="card shadow-sm">
             <div class="card-body">
-                <table class="table table-hover align-middle">
-                    <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Email</th>
-                        <th>Papel</th>
-                        <th>Reputação</th>
-                        <th class="text-end">Ações</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @forelse ($usuarios as $usuario)
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
                         <tr>
-                            <td>{{ $usuario->name }}</td>
-                            <td>{{ $usuario->email }}</td>
-                            <td>
-                                @if($usuario->role == 'admin')
-                                    <span class="badge bg-primary">Admin</span>
-                                @else
-                                    <span class="badge bg-secondary">Relator</span>
-                                @endif
-                            </td>
-                            <td>
-                                @php
-                                    $score = $usuario->reputation_score;
-                                    if ($score <= 0) {
-                                        echo '<span class="badge bg-danger">Bloqueado</span>';
-                                    } elseif ($score < 50) {
-                                        echo '<span class="badge bg-danger">Ruim</span>';
-                                    } elseif ($score < 75) {
-                                        echo '<span class="badge bg-warning">Média</span>';
-                                    } else {
-                                        echo '<span class="badge bg-success">Boa</span>';
-                                    }
-                                @endphp
-                            </td>
-
-                            <td class="text-end">
-                                <div class="btn-group" role="group">
-
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Papel</th>
+                            <th>Reputação</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @forelse ($usuarios as $usuario)
+                            <tr>
+                                <td>{{ $usuario->name }}</td>
+                                <td>{{ $usuario->email }}</td>
+                                <td>
+                                    @if($usuario->role == 'admin')
+                                        <span class="badge bg-primary">Admin</span>
+                                    @else
+                                        <span class="badge bg-secondary">Relator</span>
+                                    @endif
+                                </td>
+                                <td>
                                     @php
-                                        $actionText = $usuario->role == 'admin' ? 'rebaixar para Relator' : 'promover para Admin';
+                                        $score = $usuario->reputation_score;
+                                        if ($score <= 0) {
+                                            echo '<span class="badge bg-danger">Bloqueado</span>';
+                                        } elseif ($score < 50) {
+                                            echo '<span class="badge bg-danger">Ruim</span>';
+                                        } elseif ($score < 75) {
+                                            echo '<span class="badge bg-warning">Média</span>';
+                                        } else {
+                                            echo '<span class="badge bg-success">Boa</span>';
+                                        }
                                     @endphp
-                                    <form action="{{ route('admin.usuarios.toggleRole', $usuario->id) }}" method="POST" class="me-1" onsubmit="return confirm('Tem certeza que deseja {{ $actionText }} este usuário?');">
-                                        @csrf
-                                        <button type="submit"
-                                                class="btn btn-sm {{ $usuario->role == 'admin' ? 'btn-warning' : 'btn-success' }}"
-                                                @if(auth()->id() == $usuario->id) disabled @endif
-                                                title="{{ $usuario->role == 'admin' ? 'Rebaixar para Relator' : 'Promover para Admin' }}">
-                                            <i class="bi {{ $usuario->role == 'admin' ? 'bi-arrow-down-circle' : 'bi-arrow-up-circle' }}"></i>
-                                        </button>
-                                    </form>
+                                </td>
 
-                                    @if ($usuario->reputation_score > 0)
-                                        <form action="{{ route('admin.usuarios.block', $usuario->id) }}" method="POST" class="me-1" onsubmit="return confirm('Tem certeza que deseja bloquear este usuário? (Reputação será 0)');">
+                                <td class="text-end">
+                                    <div class="btn-group" role="group">
+
+                                        @php
+                                            $actionText = $usuario->role == 'admin' ? 'rebaixar para Relator' : 'promover para Admin';
+                                        @endphp
+                                        <form action="{{ route('admin.usuarios.toggleRole', $usuario->id) }}" method="POST" class="me-1" onsubmit="return confirm('Tem certeza que deseja {{ $actionText }} este usuário?');">
                                             @csrf
                                             <button type="submit"
-                                                    class="btn btn-sm btn-danger"
+                                                    class="btn btn-sm {{ $usuario->role == 'admin' ? 'btn-warning' : 'btn-success' }}"
                                                     @if(auth()->id() == $usuario->id) disabled @endif
-                                                    title="Bloquear usuário (Reputação 0)">
-                                                <i class="bi bi-person-x-fill"></i>
+                                                    title="{{ $usuario->role == 'admin' ? 'Rebaixar para Relator' : 'Promover para Admin' }}">
+                                                <i class="bi {{ $usuario->role == 'admin' ? 'bi-arrow-down-circle' : 'bi-arrow-up-circle' }}"></i>
                                             </button>
                                         </form>
-                                    @else
-                                        <form action="{{ route('admin.usuarios.unblock', $usuario->id) }}" method="POST" class="me-1" onsubmit="return confirm('Tem certeza que deseja desbloquear este usuário? (Reputação será 100)');">
+
+                                        @if ($usuario->reputation_score > 0)
+                                            <form action="{{ route('admin.usuarios.block', $usuario->id) }}" method="POST" class="me-1" onsubmit="return confirm('Tem certeza que deseja bloquear este usuário? (Reputação será 0)');">
+                                                @csrf
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-danger"
+                                                        @if(auth()->id() == $usuario->id) disabled @endif
+                                                        title="Bloquear usuário (Reputação 0)">
+                                                    <i class="bi bi-person-x-fill"></i>
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('admin.usuarios.unblock', $usuario->id) }}" method="POST" class="me-1" onsubmit="return confirm('Tem certeza que deseja desbloquear este usuário? (Reputação será 100)');">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-info" title="Desbloquear usuário (Reputação 100)">
+                                                    <i class="bi bi-person-check-fill"></i>
+                                                </button>
+                                            </form>
+                                        @endif
+
+                                        <form action="{{ route('admin.usuarios.destroy', $usuario->id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este usuário? Todas as suas ocorrências serão anonimizadas.');">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm btn-info" title="Desbloquear usuário (Reputação 100)">
-                                                <i class="bi bi-person-check-fill"></i>
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" @if(auth()->id() == $usuario->id) disabled @endif title="Excluir usuário">
+                                                <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
-                                    @endif
 
-                                    <form action="{{ route('admin.usuarios.destroy', $usuario->id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este usuário? Todas as suas ocorrências serão anonimizadas.');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" @if(auth()->id() == $usuario->id) disabled @endif title="Excluir usuário">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-center">Nenhum usuário encontrado.</td>
-                        </tr>
-                    @endforelse
-                    </tbody>
-                </table>
-            </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center">Nenhum usuário encontrado.</td>
+                            </tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div> </div>
             <div class="card-footer">
                 {{ $usuarios->appends($filters ?? [])->links() }}
             </div>
