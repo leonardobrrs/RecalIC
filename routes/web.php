@@ -72,16 +72,13 @@ Route::middleware('admin')->group(function () {
 
 });
 
-// ROTA TEMPORÁRIA
 Route::get('/debug-email-config', function() {
     try {
-        echo "=== DEBUG CONFIGURAÇÃO POSTMARK ===<br>";
+        echo "=== DEBUG CONFIGURAÇÃO MAILERSEND ===<br>";
         echo "MAIL_MAILER: " . config('mail.default') . "<br>";
-        echo "POSTMARK_TOKEN (env): " . (env('POSTMARK_TOKEN') ? '✅ CONFIGURADA' : '❌ NÃO CONFIGURADA') . "<br>";
-        echo "POSTMARK_TOKEN (config): " . (config('services.postmark.token') ? '✅ CONFIGURADA' : '❌ NÃO CONFIGURADA') . "<br>";
+        echo "MAILERSEND_API_KEY: " . (env('MAILERSEND_API_KEY') ? '✅ CONFIGURADA' : '❌ NÃO CONFIGURADA') . "<br>";
         echo "MAIL_FROM: " . config('mail.from.address') . "<br>";
 
-        // Busca a ocorrência MAIS RECENTE e seu usuário
         $ocorrencia = App\Models\Ocorrencia::with('relator')->latest()->first();
 
         if ($ocorrencia && $ocorrencia->relator) {
@@ -90,24 +87,16 @@ Route::get('/debug-email-config', function() {
             echo "<br>📊 Dados do teste:<br>";
             echo "Ocorrência: #" . $ocorrencia->id . "<br>";
             echo "Usuário: " . $user->name . " (" . $user->email . ")<br>";
-            echo "Status atual: " . $ocorrencia->status . "<br>";
 
-            // Teste envio com Postmark
-            Mail::raw('Teste de notificação RecalIC com Postmark - Esta é uma simulação de mudança de status', function($message) use ($user, $ocorrencia) {
+            Mail::raw('Teste MailerSend - RecalIC', function($message) use ($user, $ocorrencia) {
                 $message->to($user->email)
-                    ->subject('✅ Teste Postmark - Ocorrência #' . $ocorrencia->id);
+                    ->subject('✅ Teste MailerSend - Ocorrência #' . $ocorrencia->id);
             });
 
-            echo "<br>✅ E-mail teste ENVIADO para: " . $user->email;
-            echo "<br>📨 Verifique a caixa de entrada e spam!";
-            echo "<br>🎯 Este é o usuário da ocorrência mais recente (#" . $ocorrencia->id . ")";
-
-        } else {
-            echo "<br>❌ Nenhuma ocorrência com usuário encontrada";
+            echo "<br>✅ E-mail teste ENVIADO!";
         }
 
     } catch (\Exception $e) {
         echo "<br>❌ ERRO: " . $e->getMessage();
-        echo "<br>💡 Dica: Verifique se o Postmark Token está correto";
     }
 });
