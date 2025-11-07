@@ -146,7 +146,7 @@
         <a href="{{ url('/admin/relatorios') }}" class="nav-button active">Relatórios</a>
 
         <div class="sidebar-footer">
-            <form action="{{ url('/logout') }}" method="POST">
+            <form action="{{ route('admin.logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="logout-button">
                     <i class="bi bi-power" style="font-size: 1.5rem;"></i>
