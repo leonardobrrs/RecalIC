@@ -127,8 +127,9 @@
         <p class="text-white mb-4">Reputação: <span class="{{ $colorClass }}">{{ $reputacaoTexto }}</span></p>
         
         <a href="{{ url('/dashboard') }}" class="nav-button">Meus Relatos</a>
+        <a href="{{ url('/perfil') }}" class="nav-button">Meu Perfil</a> 
         <a href="{{ url('/ocorrencias/registrar') }}" class="nav-button">Registrar nova ocorrência</a>
-        <a href="{{ route('perfil.edit') }}" class="nav-button">Editar Perfil</a> <div class="sidebar-footer">
+        <div class="sidebar-footer">
             <form action="{{ url('/logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="logout-button">
