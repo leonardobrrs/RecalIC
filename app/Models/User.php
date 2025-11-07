@@ -66,4 +66,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Avaliacao::class);
     }
+    public function setNameAttribute($value)
+    {
+        // Converte o valor para maiúsculas antes de salvar no banco
+        $this->attributes['name'] = strtoupper($value);
+    }
 }
