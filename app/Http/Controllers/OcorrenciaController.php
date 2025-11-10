@@ -44,9 +44,9 @@ class OcorrenciaController extends Controller
         // 1. Cria uma chave única para este usuário e esta ação
         $limiterKey = 'create-occurrence:' . Auth::id();
 
-        // 2. Define o limite (3 tentativas a cada 60 segundos)
+        // 2. Define o limite (3 tentativas a cada 60 minutos)
         $maxAttempts = 3;
-        $decayInSeconds = 60;
+        $decayInSeconds = 3600;
 
         // 3. Verifica se o usuário excedeu o limite
         if (RateLimiter::tooManyAttempts($limiterKey, $maxAttempts)) {
