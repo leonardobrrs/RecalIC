@@ -242,6 +242,25 @@
                 margin-top: 10px;
                 margin-left: 0; /* Reseta o margin-left */
             }
+
+            /* --- MUDANÇA DOS BOTÕES DO FORMULÁRIO --- */
+            /* Em telas pequenas (xs), os botões "Voltar" e "Registrar" 
+              agora usarão d-grid (via .d-grid) e ocuparão 100% da largura, empilhados.
+              Em telas 'sm' ou maiores, eles voltam ao d-flex (via .d-sm-flex)
+              com justify-content-sm-between.
+            */
+            .form-buttons-container {
+                display: grid; /* Padrão mobile: empilhado, 100% width */
+                gap: 0.5rem; /* Espaço entre os botões empilhados */
+            }
+
+            @media (min-width: 576px) {
+                .form-buttons-container {
+                    display: flex; /* Padrão desktop: lado a lado */
+                    justify-content: space-between;
+                }
+            }
+
         }
         /* === FIM DAS REGRAS DE RESPONSIVIDADE === */
 
@@ -274,7 +293,8 @@
         <p class="text-white mb-4 reputation-text">Reputação: <span class="{{ $colorClass }}">{{ $reputacaoTexto }}</span></p>
         <a href="{{ url('/dashboard') }}" class="nav-button">Meus Relatos</a>
         <a href="{{ url('/perfil') }}" class="nav-button">Meu Perfil</a>
-        <a href="{{ url('/ocorrencias/registrar') }}" class="nav-button active">Registrar nova ocorrência</a> <div class="sidebar-footer">
+        <a href="{{ url('/ocorrencias/registrar') }}" class="nav-button active">Registrar nova ocorrência</a> 
+        <div class="sidebar-footer">
             <form action="{{ url('/logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="logout-button">
@@ -384,7 +404,7 @@
                     </fieldset>
 
                     <div class="row mt-4 pt-3 border-top">
-                        <div class="col d-flex justify-content-between align-items-center">
+                        <div class="col-12 d-grid gap-2 d-sm-flex justify-content-sm-between">
                             <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='{{ url('/dashboard') }}'">
                                 <i class="bi bi-arrow-left"></i> Voltar
                             </button>
