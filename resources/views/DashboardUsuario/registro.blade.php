@@ -313,20 +313,6 @@
             </div>
             <div class="card-body">
 
-                @error('limite')
-                <div class="alert alert-warning">
-                    {{ $message }}
-                </div>
-                @enderror
-
-                @if(Auth::user()->reputation_score <= 0)
-                    <div class="alert alert-danger text-center">
-                        <i class="bi bi-x-octagon-fill"></i>
-                        <strong>Sua conta está bloqueada.</strong>
-                        <p class="mb-0">Você não pode registrar novas ocorrências devido a um histórico de relatos inválidos.</p>
-                    </div>
-                @endif
-
                 <form id="ocorrenciaForm" action="{{ url('/ocorrencias/registrar') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
@@ -408,7 +394,11 @@
                             <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='{{ url('/dashboard') }}'">
                                 <i class="bi bi-arrow-left"></i> Voltar
                             </button>
-
+                            @if ($errors->has('limite'))
+                                <div class="alert alert-danger" role="alert">
+                                    {{ $errors->first('limite') }}
+                                </div>
+                            @endif
                             <button class="btn btn-primary" type="submit" @if(Auth::user()->reputation_score <= 0) disabled @endif>
                                 <i class="bi bi-check-circle"></i> Registrar
                             </button>

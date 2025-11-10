@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Ocorrencia;
 use App\Models\OcorrenciaAnexo;
 use App\Models\Avaliacao; // Importar o Model Avaliacao
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule; // Para validação in
 
@@ -37,6 +38,30 @@ class OcorrenciaController extends Controller
      */
     public function store(Request $request)
     {
+
+            // --- INÍCIO DA LÓGICA DE RATE LIMIT ---
+
+        // 1. Cria uma chave única para este usuário e esta ação
+        $limiterKey = 'create-occurrence:' . Auth::id();
+
+        // 2. Define o limite (3 tentativas a cada 60 segundos)
+        $maxAttempts = 3;
+        $decayInSeconds = 60;
+
+        // 3. Verifica se o usuário excedeu o limite
+        if (RateLimiter::tooManyAttempts($limiterKey, $maxAttempts)) {
+
+            // 4. Se excedeu, redireciona DE VOLTA com um erro personalizado
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['limite' => 'Você está tentando registrar ocorrências muito rápido. Por favor, aguarde antes de tentar novamente.']);
+        }
+
+        // 5. Se não excedeu, registra uma tentativa (incrementa o contador)
+        RateLimiter::hit($limiterKey, $decayInSeconds);
+
+        // --- FIM DA LÓGICA DE RATE LIMIT ---
+
         if (Auth::user()->reputation_score <= 0) {
             return redirect()->back()
                 ->withInput()
