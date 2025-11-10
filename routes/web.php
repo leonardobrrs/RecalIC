@@ -72,34 +72,4 @@ Route::middleware('admin')->group(function () {
     Route::put('/admin/ocorrencias/{id}/status', [AdminController::class, 'updateOcorrenciaStatus'])->name('admin.ocorrencias.updateStatus');
     Route::post('/admin/ocorrencias/{id}/avaliar-relator', [AdminController::class, 'avaliarRelator'])->name('admin.ocorrencias.avaliarRelator');
     Route::delete('/admin/ocorrencias/{id}', [AdminController::class, 'destroyOcorrencia'])->name('admin.ocorrencias.destroy');
-
-});
-
-Route::get('/debug-email-config', function() {
-    try {
-        echo "=== DEBUG CONFIGURAÇÃO MAILERSEND ===<br>";
-        echo "MAIL_MAILER: " . config('mail.default') . "<br>";
-        echo "MAILERSEND_API_KEY: " . (env('MAILERSEND_API_KEY') ? '✅ CONFIGURADA' : '❌ NÃO CONFIGURADA') . "<br>";
-        echo "MAIL_FROM: " . config('mail.from.address') . "<br>";
-
-        $ocorrencia = App\Models\Ocorrencia::with('relator')->latest()->first();
-
-        if ($ocorrencia && $ocorrencia->relator) {
-            $user = $ocorrencia->relator;
-
-            echo "<br>📊 Dados do teste:<br>";
-            echo "Ocorrência: #" . $ocorrencia->id . "<br>";
-            echo "Usuário: " . $user->name . " (" . $user->email . ")<br>";
-
-            Mail::raw('Teste MailerSend - RecalIC', function($message) use ($user, $ocorrencia) {
-                $message->to($user->email)
-                    ->subject('✅ Teste MailerSend - Ocorrência #' . $ocorrencia->id);
-            });
-
-            echo "<br>✅ E-mail teste ENVIADO!";
-        }
-
-    } catch (\Exception $e) {
-        echo "<br>❌ ERRO: " . $e->getMessage();
-    }
 });

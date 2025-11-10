@@ -322,7 +322,7 @@
                                         'Mini-auditório', 'Sala de Reuniões', 'Laboratório de Robótica',
                                         'Laboratório de Graduação 01', 'Laboratório de Graduação 02',
                                         'Laboratório de Graduação 03', 'Laboratório de Circuitos Elétricos e Eletrônicos',
-                                        'Auditório CEPETC', 'Hall', 'Secretaria', 'Outro'
+                                        'Auditório CEPETEC', 'Hall', 'Secretaria', 'Outro'
                                     ];
                                 @endphp
                                 <select id="localizacaoSelect" name="localizacao" class="form-select" required>

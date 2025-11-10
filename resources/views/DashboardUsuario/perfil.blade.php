@@ -307,7 +307,7 @@
                     </div>
 
                     <hr class="my-4">
-                    <p class="fs-6"><strong>Alterar Senha</strong> (Deixe em branco para não alterar)</p>
+                    <p class="fs-6"><strong>Alterar Senha</strong><br>(Deixe em branco para não alterar)<br></p>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
