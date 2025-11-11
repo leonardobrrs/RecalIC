@@ -5,26 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Ocorrencia;
 use App\Models\OcorrenciaAnexo;
-use App\Models\Avaliacao; // Importar o Model Avaliacao
+use App\Models\Avaliacao;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule; // Para validação in
+use Illuminate\Validation\Rule;
 
 class OcorrenciaController extends Controller
 {
-    /**
-     * Exibe a lista de ocorrências do usuário (Dashboard).
-     */
     public function index()
     {
-        // 1. Pega o ID do usuário atualmente logado.
         $userId = Auth::id();
 
-        // 2. Busca no banco de dados todas as ocorrências onde 'user_id' é igual ao do usuário logado.
-        //    'latest()' ordena os resultados do mais novo para o mais antigo.
         $ocorrencias = Ocorrencia::where('user_id', $userId)->latest()->get();
 
-        // 3. Retorna a view do dashboard e passa a variável 'ocorrencias' para ela.
         return view('DashboardUsuario.dashboard', ['ocorrencias' => $ocorrencias]);
     }
 
@@ -33,34 +26,22 @@ class OcorrenciaController extends Controller
         return view('DashboardUsuario.registro');
     }
 
-    /**
-     * Salva uma nova ocorrência no banco de dados.
-     */
     public function store(Request $request)
     {
 
-            // --- INÍCIO DA LÓGICA DE RATE LIMIT ---
-
-        // 1. Cria uma chave única para este usuário e esta ação
         $limiterKey = 'create-occurrence:' . Auth::id();
 
-        // 2. Define o limite (3 tentativas a cada 60 minutos)
         $maxAttempts = 3;
         $decayInSeconds = 3600;
 
-        // 3. Verifica se o usuário excedeu o limite
         if (RateLimiter::tooManyAttempts($limiterKey, $maxAttempts)) {
 
-            // 4. Se excedeu, redireciona DE VOLTA com um erro personalizado
             return redirect()->back()
                 ->withInput()
                 ->withErrors(['limite' => 'Você está tentando registrar ocorrências muito rápido. Por favor, aguarde antes de tentar novamente.']);
         }
 
-        // 5. Se não excedeu, registra uma tentativa (incrementa o contador)
         RateLimiter::hit($limiterKey, $decayInSeconds);
-
-        // --- FIM DA LÓGICA DE RATE LIMIT ---
 
         if (Auth::user()->reputation_score <= 0) {
             return redirect()->back()
@@ -68,33 +49,28 @@ class OcorrenciaController extends Controller
                 ->withErrors(['limite' => 'A sua conta foi bloqueada por registar ocorrências inválidas e não pode criar novos relatos.']);
         }
 
-        // --- ALTERAÇÃO: ADICIONADA VALIDAÇÃO PARA 'localizacao_outra' ---
         $validatedData = $request->validate([
             'localizacao' => 'required|string|max:255',
-            'localizacao_outra' => 'nullable|required_if:localizacao,Outro|string|max:255', // Obrigatório se 'localizacao' for 'Outro'
+            'localizacao_outra' => 'nullable|required_if:localizacao,Outro|string|max:255',
             'categoria' => 'required|string|max:255',
             'patrimonio_id' => 'nullable|string|max:255',
             'descricao' => 'required|string',
             'anexos.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048'
         ]);
 
-        // --- ALTERAÇÃO: LÓGICA PARA PEGAR O VALOR FINAL DA LOCALIZAÇÃO ---
         $localizacaoFinal = $validatedData['localizacao'];
         if ($localizacaoFinal === 'Outro' && !empty($validatedData['localizacao_outra'])) {
             $localizacaoFinal = $validatedData['localizacao_outra'];
         }
 
-        // 2. Cria a ocorrência principal
         $ocorrencia = Ocorrencia::create([
             'user_id' => Auth::id(),
-            'localizacao' => $localizacaoFinal, // <-- Usa a variável final
+            'localizacao' => $localizacaoFinal,
             'categoria' => $validatedData['categoria'],
             'patrimonio_id' => $validatedData['patrimonio_id'],
             'descricao' => $validatedData['descricao'],
             'status' => 'Aberto',
         ]);
-
-        // ... (resto do método store, lidando com anexos e redirecionamento) ...
 
         if ($request->hasFile('anexos')) {
             foreach ($request->file('anexos') as $anexo) {
@@ -110,70 +86,52 @@ class OcorrenciaController extends Controller
 
     public function show(string $id)
     {
-        // --- INÍCIO DA ALTERAÇÃO ---
-        
-        // 1. Garante que as relações e o admin do histórico sejam carregados
+
         $ocorrencia = Ocorrencia::with([
             'anexos',
             'avaliacao',
-            'historico.admin' // Garante que o admin de cada log seja carregado
+            'historico.admin'
         ])
-        ->where('user_id', auth()->id()) // Garante que o usuário só veja o que é dele
-        ->findOrFail($id); // Falha se não encontrar ou não for do usuário
+        ->where('user_id', auth()->id())
+        ->findOrFail($id);
 
-        // 2. Procura pelo feedback específico do admin
-        //
-        $adminFeedback = $ocorrencia->historico->firstWhere('status_novo', 'Relator Avaliado'); 
-        
-        // 3. Passa o feedback (se existir) para a view
+        $adminFeedback = $ocorrencia->historico->firstWhere('status_novo', 'Relator Avaliado');
+
         return view('DashboardUsuario.relato', [
             'ocorrencia' => $ocorrencia,
-            'adminFeedback' => $adminFeedback // Variável nova
+            'adminFeedback' => $adminFeedback
         ]);
-        // --- FIM DA ALTERAÇÃO ---
     }
 
 public function historico(string $id)
     {
-        // 1. Garante que as relações e o admin do histórico sejam carregados
         $ocorrencia = Ocorrencia::with([
-            'historico.admin' // Garante que o admin de cada log seja carregado
+            'historico.admin'
         ])
-        ->where('user_id', auth()->id()) // Garante que o usuário só veja o que é dele
-        ->findOrFail($id); // Falha se não encontrar ou não for do usuário
+        ->where('user_id', auth()->id())
+        ->findOrFail($id);
 
-        // 2. Procura pelo feedback específico do admin
-        //
-        $adminFeedback = $ocorrencia->historico->firstWhere('status_novo', 'Relator Avaliado'); 
-        
-        // 3. Passa o feedback (se existir) para a view de histórico
-        return view('DashboardUsuario.detalhesRelato', [ // Verifique se este é o nome correto da view
+        $adminFeedback = $ocorrencia->historico->firstWhere('status_novo', 'Relator Avaliado');
+
+        return view('DashboardUsuario.detalhesRelato', [
             'ocorrencia' => $ocorrencia,
-            'adminFeedback' => $adminFeedback // Variável nova
+            'adminFeedback' => $adminFeedback
         ]);
     }
 
     public function storeAvaliacao(Request $request, string $id)
     {
-        // 1. Encontra a ocorrência ou falha
         $ocorrencia = Ocorrencia::findOrFail($id);
 
-        // 2. Verifica as permissões
-        //    - O usuário logado é o dono da ocorrência?
-        //    - O status é 'Resolvido'?
-        //    - Já existe uma avaliação para esta ocorrência?
         if ($ocorrencia->user_id !== Auth::id() || $ocorrencia->status !== 'Resolvido' || $ocorrencia->avaliacao()->exists()) {
-            // Se alguma condição falhar, redireciona com erro (ou pode lançar uma exceção 403 Forbidden)
             return redirect()->route('ocorrencias.show', $id)->withErrors(['avaliacao' => 'Não é possível avaliar esta ocorrência.']);
         }
 
-        // 3. Valida os dados do formulário de avaliação
         $validatedData = $request->validate([
-            'nota' => ['required', 'integer', Rule::in([1, 2, 3, 4, 5])], // Nota obrigatória de 1 a 5
-            'comentario' => 'nullable|string|max:500', // Comentário opcional
+            'nota' => ['required', 'integer', Rule::in([1, 2, 3, 4, 5])],
+            'comentario' => 'nullable|string|max:500',
         ]);
 
-        // 4. Cria a avaliação no banco de dados
         Avaliacao::create([
             'ocorrencia_id' => $ocorrencia->id,
             'user_id' => Auth::id(),
@@ -181,7 +139,6 @@ public function historico(string $id)
             'comentario' => $validatedData['comentario'],
         ]);
 
-        // 5. Redireciona de volta para a página de detalhes com mensagem de sucesso
         return redirect()->route('ocorrencias.show', $id)->with('success', 'Avaliação registrada com sucesso!');
     }
 }

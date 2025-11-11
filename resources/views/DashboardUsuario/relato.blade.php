@@ -14,8 +14,7 @@
         .logout-button:hover { opacity: 1; color: white; }
         .profile-avatar { width: 150px; height: 150px; border-radius: 50%; background-color: #0a58ca; display: flex; align-items: center; justify-content: center; font-size: 70px; font-weight: bold; color: white; margin-bottom: 20px; }
         .sidebar h5 { margin-bottom: 0.5rem; }
-        
-        /* Classe adicionada para controlar a margem e a exibição responsiva */
+
         .sidebar .reputation-text {
              margin-bottom: 40px;
         }
@@ -37,8 +36,6 @@
             transform: scale(1.05);
         }
 
-        /* === INÍCIO DAS REGRAS DE RESPONSIVIDADE (IDÊNTICAS AO DASHBOARD DO USUÁRIO) === */
-        
         @media (max-width: 991.98px) {
             .d-flex {
                 flex-direction: column;
@@ -47,29 +44,29 @@
             .sidebar {
                 width: 100%;
                 height: auto;
-                position: relative; /* Remove a fixação */
-                flex-direction: row; /* Itens em linha */
-                justify-content: flex-start; /* Alinha à esquerda */
-                align-items: center; 
+                position: relative;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
                 padding: 10px 15px;
             }
-            
+
             .sidebar .profile-avatar {
                 width: 50px;
                 height: 50px;
                 font-size: 24px;
                 margin-bottom: 0;
             }
-            
+
             .sidebar h5 {
-                display: block; 
+                display: block;
                 margin-bottom: 0;
-                font-size: 1.1rem; 
-                margin-left: 10px; 
+                font-size: 1.1rem;
+                margin-left: 10px;
             }
 
             .sidebar .reputation-text {
-                display: none; /* Oculta reputação no modo tablet */
+                display: none;
                 margin-bottom: 0;
             }
 
@@ -85,11 +82,11 @@
                 margin-top: 0;
                 width: auto;
                 padding-bottom: 0;
-                margin-left: auto; /* Empurra o "Sair" para a direita */
+                margin-left: auto;
             }
 
             .sidebar .logout-button span {
-                display: none; /* Oculta texto "Sair" */
+                display: none;
             }
             .sidebar .logout-button {
                 padding: 5px;
@@ -105,8 +102,6 @@
                 margin-left: 0;
                 padding: 20px;
             }
-
-            /* Ajuste para a área de anexos em telas pequenas */
             .row.g-2[style="max-width: 400px;"] {
                 max-width: 100% !important;
             }
@@ -114,30 +109,30 @@
 
         @media (max-width: 576px) {
             .sidebar {
-                flex-wrap: wrap; /* Permite que os botões quebrem linha */
+                flex-wrap: wrap;
                 justify-content: center;
                 gap: 10px;
             }
             .sidebar h5 {
-                 width: 100%; 
-                 text-align: center; 
+                 width: 100%;
+                 text-align: center;
                  margin-left: 0;
                  margin-right: 0;
-                 margin-bottom: 10px; 
-                 order: -1; /* Coloca o nome no topo */
+                 margin-bottom: 10px;
+                 order: -1;
             }
             .sidebar .profile-avatar {
-                display: none; /* Oculta avatar em telas muito pequenas */
+                display: none;
             }
             .sidebar .reputation-text {
-                display: block; /* Re-exibe a reputação */
+                display: block;
                 width: 100%;
                 text-align: center;
                 margin-bottom: 10px;
-                order: -1; /* Coloca junto ao nome */
+                order: -1;
             }
             .sidebar .nav-button {
-                width: 90%; /* Botões ocupam a largura toda */
+                width: 90%;
                 margin-left: 0;
                 text-align: center;
             }
@@ -145,10 +140,9 @@
                 width: 100%;
                 text-align: center;
                 margin-top: 10px;
-                margin-left: 0; /* Reseta o margin-left */
+                margin-left: 0;
             }
         }
-        /* === FIM DAS REGRAS DE RESPONSIVIDADE === */
 
     </style>
 </head>
@@ -161,16 +155,16 @@
             $score = auth()->user()->reputation_score;
             if ($score <= 0) {
                 $reputacaoTexto = 'Bloqueado';
-                $colorClass = 'badge bg-danger'; // Vermelho
+                $colorClass = 'badge bg-danger';
             } elseif ($score < 50) {
                 $reputacaoTexto = 'Ruim';
-                $colorClass = 'badge bg-danger';  // Vermelho
+                $colorClass = 'badge bg-danger';
             } elseif ($score < 75) {
                 $reputacaoTexto = 'Média';
-                $colorClass = 'badge bg-warning text-dark'; // Amarelo
+                $colorClass = 'badge bg-warning text-dark';
             } else {
                 $reputacaoTexto = 'Boa';
-                $colorClass = 'badge bg-success'; // Verde
+                $colorClass = 'badge bg-success';
             }
         @endphp
         <p class="text-white reputation-text">Reputação: <span class="{{ $colorClass }}">{{ $reputacaoTexto }}</span></p>
@@ -299,7 +293,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Script para modal de imagem (sem alterações)
     document.addEventListener('DOMContentLoaded', function() {
         const thumbnails = document.querySelectorAll('.thumbnail-clicavel');
         const imagemNoModal = document.getElementById('imagemExpandida');

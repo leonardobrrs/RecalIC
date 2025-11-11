@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Seu CSS (sem alterações) */
         body, html {
             height: 100%;
             margin: 0;
@@ -36,10 +35,8 @@
         .sidebar .nav-button.active { background-color: #dee2e6; font-weight: bold; }
         .main-content { margin-left: 280px; padding: 40px; }
         .kpi-card .card-title { font-size: 2.5rem; font-weight: 700; }
-        .kpi-card .card-subtitle { font-size: 0.85rem; } /* Subtítulo para notas */
+        .kpi-card .card-subtitle { font-size: 0.85rem; }
 
-        /* === INÍCIO DAS REGRAS DE RESPONSIVIDADE === */
-        
         @media (max-width: 991.98px) {
             .d-flex {
                 flex-direction: column;
@@ -48,25 +45,25 @@
             .sidebar {
                 width: 100%;
                 height: auto;
-                position: relative; /* Remove a fixação */
-                flex-direction: row; /* Itens em linha */
-                justify-content: flex-start; /* Alinha à esquerda */
-                align-items: center; 
+                position: relative;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
                 padding: 10px 15px;
             }
-            
+
             .sidebar .profile-avatar {
                 width: 50px;
                 height: 50px;
                 font-size: 24px;
                 margin-bottom: 0;
             }
-            
+
             .sidebar h5 {
-                display: block; 
+                display: block;
                 margin-bottom: 0;
-                font-size: 1.1rem; 
-                margin-left: 10px; 
+                font-size: 1.1rem;
+                margin-left: 10px;
             }
 
             .sidebar .nav-button {
@@ -81,11 +78,11 @@
                 margin-top: 0;
                 width: auto;
                 padding-bottom: 0;
-                margin-left: auto; /* Empurra o "Sair" para a direita */
+                margin-left: auto;
             }
 
             .sidebar .logout-button span {
-                display: none; /* Oculta texto "Sair" */
+                display: none;
             }
             .sidebar .logout-button {
                 padding: 5px;
@@ -105,23 +102,23 @@
 
         @media (max-width: 576px) {
             .sidebar {
-                flex-wrap: wrap; /* Permite que os botões quebrem linha */
+                flex-wrap: wrap;
                 justify-content: center;
                 gap: 10px;
             }
             .sidebar h5 {
-                 width: 100%; 
-                 text-align: center; 
+                 width: 100%;
+                 text-align: center;
                  margin-left: 0;
                  margin-right: 0;
-                 margin-bottom: 10px; 
-                 order: -1; /* Coloca o nome no topo */
+                 margin-bottom: 10px;
+                 order: -1;
             }
             .sidebar .profile-avatar {
-                display: none; /* Oculta avatar em telas muito pequenas */
+                display: none;
             }
             .sidebar .nav-button {
-                width: 45%; /* 2 botões por linha */
+                width: 45%;
                 margin-left: 0;
                 text-align: center;
             }
@@ -129,10 +126,9 @@
                 width: 100%;
                 text-align: center;
                 margin-top: 10px;
-                margin-left: 0; /* Reseta o margin-left */
+                margin-left: 0;
             }
         }
-        /* === FIM DAS REGRAS DE RESPONSIVIDADE === */
 
     </style>
 </head>
@@ -182,7 +178,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="col-md-4">
                 <div class="card kpi-card text-center shadow-sm h-100">
                     <div class="card-body">
@@ -246,8 +242,6 @@
 </div>
 
 <script>
-    // Scripts dos gráficos (sem alterações)
-    // --- Gráfico de Categorias (Pizza) ---
     const categoryData = @json($ocorrenciasPorCategoria ?? []);
     const categoryLabels = Object.keys(categoryData);
     const categoryCounts = Object.values(categoryData);
@@ -278,7 +272,6 @@
         }
     });
 
-    // --- Gráfico de Locais (Barras) ---
     const locationData = @json($locaisMaisRelatos ?? []);
     const locationLabels = Object.keys(locationData);
     const locationCounts = Object.values(locationData);

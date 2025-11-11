@@ -59,30 +59,15 @@ RUN apt-get update && apt-get upgrade -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# ===========================================
-# Removido: file capability que causava "operation not permitted" no Render
-# RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.3
-# ===========================================
-
-# Create sail group/user early so we can chown files at copy time if desired
 RUN groupadd --force sail
 RUN useradd -ms /bin/bash --no-user-group -g sail -u 1337 sail || true
 
-# ====================================================
-# COPY DOS ARQUIVOS DO PROJETO PARA A IMAGEM (ESSENCIAL)
-# ====================================================
-# Copia todo o repositório para /var/www/html (preserva dono root por enquanto)
 COPY . /var/www/html
 
-# Se preferir, faça COPY com chown (se o usuário sail existir):
-# COPY --chown=sail:sail . /var/www/html
-
-# Instala dependências PHP (assume que composer.json existe)
 RUN if [ -f /var/www/html/composer.json ]; then \
       cd /var/www/html && composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist; \
     fi
 
-# Ajustes de permissões necessários para Laravel
 RUN chown -R sail:sail /var/www/html \
     && chmod -R ug+rwx /var/www/html/storage /var/www/html/bootstrap/cache || true
 
@@ -97,7 +82,6 @@ COPY docker/8.3/php.ini /etc/php/8.3/cli/conf.d/99-sail.ini
 RUN chmod +x /usr/local/bin/render-start.sh
 RUN chmod +x /usr/local/bin/start-container
 
-# Exponha a porta alta (não-privilegiada)
 EXPOSE 8080/tcp
 
 ENTRYPOINT ["start-container"]

@@ -9,7 +9,6 @@
         table, td { mso-table-lspace: 0; mso-table-rspace: 0; }
         img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
 
-        /* Estilos principais */
         body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; background-color: #f8f9fa; }
         .container { max-width: 600px; margin: 0 auto; background: #ffffff; }
         .header { background: #0d6efd; color: white; padding: 30px 20px; text-align: center; }

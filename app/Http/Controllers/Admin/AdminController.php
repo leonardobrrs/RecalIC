@@ -13,31 +13,21 @@ use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
-    /**
-     * Exibe o dashboard principal do administrador com todas as ocorrências.
-     */
+
     public function dashboard(Request $request)
     {
-        // Inicia a query para buscar ocorrências com o relacionamento 'relator'
         $query = Ocorrencia::with('relator');
 
-        // --- LÓGICA DE FILTRO DE STATUS ATUALIZADA ---
-
-        // Verifica se o parâmetro 'status' foi enviado na URL
         if ($request->has('status')) {
-            // Se foi enviado e NÃO está vazio (ex: "Resolvido", "Aberto")
-            // A query filtra por esse status específico.
+
             if ($request->filled('status')) {
                 $query->where('status', $request->status);
             }
-            // Se 'status' foi enviado MAS está VAZIO (ex: o usuário selecionou "Todos")
-            // não adicionamos nenhum filtro de status, mostrando TODOS.
+
         } else {
-            // DEFAULT (Nenhum parâmetro 'status' na URL, primeiro acesso)
-            // Mostra apenas ocorrências ativas ("Abertas" ou "Em Análise").
+
             $query->whereIn('status', ['Aberto', 'Em Análise']);
         }
-        // --- FIM DA LÓGICA DE FILTRO DO STATUS ---
 
         if ($request->filled('category')) {
             $query->where('categoria', $request->category);
@@ -51,111 +41,88 @@ class AdminController extends Controller
             });
         }
 
-        // Verifica se o parâmetro 'sort' foi enviado, senão, usa 'desc' (mais recentes) como padrão.
         $sortDirection = $request->input('sort', 'desc');
 
-        // Aplica a ordenação pela data de criação
         $query->orderBy('created_at', $sortDirection);
 
-        // Executa a query com os filtros e ordenação
         $ocorrencias = $query->get();
 
-        // Retorna a view, passando as ocorrências e a direção da ordenação atual
         return view('DashboardAdmin.dashboardADM', [
             'ocorrencias' => $ocorrencias,
-            'currentSort' => $sortDirection // Envia a ordenação atual para a view
+            'currentSort' => $sortDirection
         ]);
     }
 
     public function showOcorrencia(string $id)
     {
-        // ALTERAÇÃO: Adicionado 'avaliacao' ao 'with()'
         $ocorrencia = Ocorrencia::with(['relator', 'anexos', 'historico.admin', 'avaliacao'])
             ->findOrFail($id);
 
-        // --- NOVA LÓGICA ---
-        // Verifica se o histórico contém um registro de que o relator já foi avaliado
         $relatorJaAvaliado = $ocorrencia->historico->contains(function ($item) {
-            // Usamos 'status_novo' como um "log" de ação
+
             return $item->status_novo === 'Relator Avaliado';
         });
-        // --- FIM DA NOVA LÓGICA ---
 
         return view('DashboardAdmin.registros', [
             'ocorrencia' => $ocorrencia,
-            'relatorJaAvaliado' => $relatorJaAvaliado // Passa a flag para a view
+            'relatorJaAvaliado' => $relatorJaAvaliado
         ]);
     }
 
-    /**
-     * Atualiza o status de uma ocorrência e registra no histórico.
-     */
     public function updateOcorrenciaStatus(Request $request, string $id)
     {
-        // 1. Encontra a ocorrência ou falha (erro 404 se não existir)
+
         $ocorrencia = Ocorrencia::findOrFail($id);
 
-        // 2. Valida os dados recebidos do formulário
         $validatedData = $request->validate([
-            'status' => [ // Valida o campo 'status'
-                'required', // É obrigatório
-                Rule::in(['Aberto', 'Em Análise', 'Resolvido', 'Inválido']), // Deve ser um dos valores permitidos
+            'status' => [
+                'required',
+                Rule::in(['Aberto', 'Em Análise', 'Resolvido', 'Inválido']),
             ],
-            'comentario' => 'nullable|string|max:1000', // Comentário é opcional
+            'comentario' => 'nullable|string|max:1000',
         ]);
 
-        // Guarda o status antigo para o histórico
         $statusAnterior = $ocorrencia->status;
         $novoStatus = $validatedData['status'];
 
-        // 3. Cria o registro no histórico ANTES de atualizar a ocorrência
         StatusHistorico::create([
             'ocorrencia_id' => $ocorrencia->id,
-            'user_id' => Auth::id(), // ID do administrador logado
+            'user_id' => Auth::id(),
             'status_anterior' => $statusAnterior,
             'status_novo' => $novoStatus,
             'comentario' => $validatedData['comentario'],
         ]);
 
-        // 4. Atualiza o status na ocorrência principal
         $ocorrencia->status = $novoStatus;
 
-        // --- NOVA LÓGICA DE PENALIDADE ---
-        // Verifica se o novo status é 'Inválido' e se o status anterior não era 'Inválido' (para não penalizar múltiplas vezes)
+
         if ($novoStatus === 'Inválido' && $statusAnterior !== 'Inválido') {
-            // Busca o usuário relator
-            $relator = $ocorrencia->relator; // Usa o relacionamento que já existe
+
+            $relator = $ocorrencia->relator;
             if ($relator) {
-                // Diminui a pontuação (ajuste o valor da penalidade conforme necessário)
+
                 $relator->reputation_score -= 20;
-                $relator->save(); // Salva a alteração no usuário
+                $relator->save();
             }
         }
-        // --- FIM DA NOVA LÓGICA ---
 
         $ocorrencia->save();
 
-        // 5. Redireciona de volta para a página de detalhes com mensagem de sucesso
         return redirect()->route('admin.ocorrencias.show', $ocorrencia->id)
                          ->with('success', 'Status da ocorrência atualizado com sucesso!');
     }
 
     public function destroyOcorrencia(string $id)
     {
-        // 1. Encontra a ocorrência (com seus anexos) ou falha
+
         $ocorrencia = Ocorrencia::with('anexos')->findOrFail($id);
 
-        // 2. Apaga os arquivos físicos do disco
         foreach ($ocorrencia->anexos as $anexo) {
             Storage::disk('public')->delete($anexo->file_path);
         }
 
-        // 3. Apaga o registro da ocorrência do banco de dados
-        //    (O banco de dados cuidará de apagar os anexos, histórico e avaliações
-        //     relacionados, graças ao 'onDelete(cascade)' nas migrations)
         $ocorrencia->delete();
 
-        // 4. Redireciona para o dashboard do admin com mensagem de sucesso
         return redirect()->route('admin.dashboard')->with('success', 'Ocorrência (ID: ' . $id . ') foi excluída com sucesso.');
     }
 
@@ -164,16 +131,12 @@ class AdminController extends Controller
         return view('DashboardAdmin.relatorios');
     }
 
-    /**
-     * Define a reputação de um utilizador como 0 (Bloqueado).
-     */
     public function blockUser(string $id)
     {
         $user = User::findOrFail($id);
         $user->reputation_score = 0;
         $user->save();
 
-        // Redireciona de volta para a página anterior (a de detalhes da ocorrência)
         return redirect()->back()->with('success', 'Utilizador bloqueado com sucesso. A sua reputação foi definida como 0.');
     }
 
@@ -183,10 +146,8 @@ class AdminController extends Controller
             'nota' => 'required|integer|min:1|max:5',
         ]);
 
-        // Carrega a ocorrência com as relações necessárias
         $ocorrencia = Ocorrencia::with(['relator', 'historico'])->findOrFail($id);
 
-        // --- VERIFICAÇÃO DE REAVALIAÇÃO ---
         $jaAvaliado = $ocorrencia->historico->contains(function ($item) {
             return $item->status_novo === 'Relator Avaliado';
         });
@@ -194,7 +155,6 @@ class AdminController extends Controller
         if ($jaAvaliado) {
             return redirect()->back()->withErrors(['error' => 'Este relator já foi avaliado para esta ocorrência.']);
         }
-        // --- FIM DA VERIFICAÇÃO ---
 
         $usuario = $ocorrencia->relator;
 
@@ -206,7 +166,6 @@ class AdminController extends Controller
             return redirect()->back()->withErrors(['error' => 'Você não pode avaliar a si mesmo!']);
         }
 
-        // Lógica da pontuação
         $score = 0;
         switch ($request->nota) {
             case 1: $score = 0; break;
@@ -219,16 +178,13 @@ class AdminController extends Controller
         $usuario->reputation_score = $score;
         $usuario->save();
 
-        // --- LOGA A AVALIAÇÃO NO HISTÓRICO ---
-        // Isso previne futuras reavaliações
         StatusHistorico::create([
             'ocorrencia_id' => $ocorrencia->id,
-            'user_id' => Auth::id(), // Admin que avaliou
-            'status_anterior' => $ocorrencia->status, // Status atual (Resolvido)
-            'status_novo' => 'Relator Avaliado', // Nosso status "virtual" para log
+            'user_id' => Auth::id(),
+            'status_anterior' => $ocorrencia->status,
+            'status_novo' => 'Relator Avaliado',
             'comentario' => 'O relator recebeu a nota ' . $request->nota . ' (Score atualizado para: ' . $score . ')',
         ]);
-        // --- FIM DO LOG ---
 
         return redirect()->back()->with('success', 'A avaliação do relator foi registrada e seu score de reputação atualizado!');
     }

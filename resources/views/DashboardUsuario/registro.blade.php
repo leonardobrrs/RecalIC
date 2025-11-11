@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Ocorrências</title>
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <style>
@@ -71,8 +71,7 @@
         .sidebar h5 {
             margin-bottom: 5px;
         }
-        
-        /* Classe adicionada para controlar a margem e a exibição responsiva */
+
         .sidebar .reputation-text {
              margin-bottom: 40px;
         }
@@ -99,8 +98,7 @@
             margin-left: 280px;
             padding: 40px;
         }
-        
-        /* Estilos de Ocorrência (opcionais para esta página, mas mantidos para consistência) */
+
         .occurrence-list .card {
             background-color: #ffffff;
             color: #212529;
@@ -137,8 +135,6 @@
             color: #6c757d;
         }
 
-        /* === INÍCIO DAS REGRAS DE RESPONSIVIDADE (IDÊNTICAS AO DASHBOARD DO USUÁRIO) === */
-        
         @media (max-width: 991.98px) {
             .d-flex {
                 flex-direction: column;
@@ -147,29 +143,29 @@
             .sidebar {
                 width: 100%;
                 height: auto;
-                position: relative; /* Remove a fixação */
-                flex-direction: row; /* Itens em linha */
-                justify-content: flex-start; /* Alinha à esquerda */
-                align-items: center; 
+                position: relative;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
                 padding: 10px 15px;
             }
-            
+
             .sidebar .profile-avatar {
                 width: 50px;
                 height: 50px;
                 font-size: 24px;
                 margin-bottom: 0;
             }
-            
+
             .sidebar h5 {
-                display: block; 
+                display: block;
                 margin-bottom: 0;
-                font-size: 1.1rem; 
-                margin-left: 10px; 
+                font-size: 1.1rem;
+                margin-left: 10px;
             }
 
             .sidebar .reputation-text {
-                display: none; /* Oculta reputação no modo tablet */
+                display: none;
                 margin-bottom: 0;
             }
 
@@ -185,11 +181,11 @@
                 margin-top: 0;
                 width: auto;
                 padding-bottom: 0;
-                margin-left: auto; /* Empurra o "Sair" para a direita */
+                margin-left: auto;
             }
 
             .sidebar .logout-button span {
-                display: none; /* Oculta texto "Sair" */
+                display: none;
             }
             .sidebar .logout-button {
                 padding: 5px;
@@ -209,30 +205,30 @@
 
         @media (max-width: 576px) {
             .sidebar {
-                flex-wrap: wrap; /* Permite que os botões quebrem linha */
+                flex-wrap: wrap;
                 justify-content: center;
                 gap: 10px;
             }
             .sidebar h5 {
-                 width: 100%; 
-                 text-align: center; 
+                 width: 100%;
+                 text-align: center;
                  margin-left: 0;
                  margin-right: 0;
-                 margin-bottom: 10px; 
-                 order: -1; /* Coloca o nome no topo */
+                 margin-bottom: 10px;
+                 order: -1;
             }
             .sidebar .profile-avatar {
-                display: none; /* Oculta avatar em telas muito pequenas */
+                display: none;
             }
             .sidebar .reputation-text {
-                display: block; /* Re-exibe a reputação */
+                display: block;
                 width: 100%;
                 text-align: center;
                 margin-bottom: 10px;
-                order: -1; /* Coloca junto ao nome */
+                order: -1;
             }
             .sidebar .nav-button {
-                width: 90%; /* Botões ocupam a largura toda */
+                width: 90%;
                 margin-left: 0;
                 text-align: center;
             }
@@ -240,35 +236,28 @@
                 width: 100%;
                 text-align: center;
                 margin-top: 10px;
-                margin-left: 0; /* Reseta o margin-left */
+                margin-left: 0;
             }
 
-            /* --- MUDANÇA DOS BOTÕES DO FORMULÁRIO --- */
-            /* Em telas pequenas (xs), os botões "Voltar" e "Registrar" 
-              agora usarão d-grid (via .d-grid) e ocuparão 100% da largura, empilhados.
-              Em telas 'sm' ou maiores, eles voltam ao d-flex (via .d-sm-flex)
-              com justify-content-sm-between.
-            */
             .form-buttons-container {
-                display: grid; /* Padrão mobile: empilhado, 100% width */
-                gap: 0.5rem; /* Espaço entre os botões empilhados */
+                display: grid;
+                gap: 0.5rem;
             }
 
             @media (min-width: 576px) {
                 .form-buttons-container {
-                    display: flex; /* Padrão desktop: lado a lado */
+                    display: flex;
                     justify-content: space-between;
                 }
             }
 
         }
-        /* === FIM DAS REGRAS DE RESPONSIVIDADE === */
 
     </style>
 </head>
 <body>
 <div class="d-flex">
-    
+
     <div class="sidebar">
         <div class="profile-avatar">{{ substr(auth()->user()->name, 0, 1) }}</div>
         <h5>{{ explode(' ', auth()->user()->name)[0] }}</h5>
@@ -278,22 +267,22 @@
 
             if ($score <= 0) {
                 $reputacaoTexto = 'Bloqueado';
-                $colorClass = 'badge bg-danger'; // Vermelho
+                $colorClass = 'badge bg-danger';
             } elseif ($score < 50) {
                 $reputacaoTexto = 'Ruim';
-                $colorClass = 'badge bg-danger';  // Vermelho
+                $colorClass = 'badge bg-danger';
             } elseif ($score < 75) {
                 $reputacaoTexto = 'Média';
-                $colorClass = 'badge bg-warning text-dark'; // Amarelo
+                $colorClass = 'badge bg-warning text-dark';
             } else {
                 $reputacaoTexto = 'Boa';
-                $colorClass = 'badge bg-success'; // Verde
+                $colorClass = 'badge bg-success';
             }
         @endphp
         <p class="text-white mb-4 reputation-text">Reputação: <span class="{{ $colorClass }}">{{ $reputacaoTexto }}</span></p>
         <a href="{{ url('/dashboard') }}" class="nav-button">Meus Relatos</a>
         <a href="{{ url('/perfil') }}" class="nav-button">Meu Perfil</a>
-        <a href="{{ url('/ocorrencias/registrar') }}" class="nav-button active">Registrar nova ocorrência</a> 
+        <a href="{{ url('/ocorrencias/registrar') }}" class="nav-button active">Registrar nova ocorrência</a>
         <div class="sidebar-footer">
             <form action="{{ url('/logout') }}" method="POST">
                 @csrf
@@ -421,19 +410,17 @@
 
         function toggleOutroLocal(selectedValue) {
             if (selectedValue === 'Outro') {
-                outroLocalContainer.style.display = 'flex'; // 'flex' para manter o alinhamento do bootstrap
+                outroLocalContainer.style.display = 'flex';
                 outroLocalInput.required = true;
             } else {
                 outroLocalContainer.style.display = 'none';
                 outroLocalInput.required = false;
-                outroLocalInput.value = ''; // Limpa o campo se o usuário mudar de ideia
+                outroLocalInput.value = '';
             }
         }
 
-        // Verifica o estado inicial (caso a página recarregue com erro de validação)
         toggleOutroLocal(localSelect.value);
 
-        // Adiciona o listener para mudanças
         localSelect.addEventListener('change', function() {
             toggleOutroLocal(this.value);
         });

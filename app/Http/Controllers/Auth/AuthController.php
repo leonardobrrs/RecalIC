@@ -11,7 +11,6 @@ use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
-    // --- MÉTODOS DE EXIBIÇÃO ---
     public function showLoginForm() { return view('LoginUsuario.login'); }
     public function showRegistrationForm() { return view('CadastroUsuario.cadastro'); }
     public function showAdminLoginForm() { return view('LoginAdmin.loginADM'); }
@@ -65,13 +64,11 @@ class AuthController extends Controller
     }
 
     // --- LÓGICA DE ADMINISTRADOR ---
-
     public function adminRegister(Request $request)
     {
-        // 1. Validação dos dados (similar, mas com 'cis')
         $request->validate([
             'nomeCompleto' => 'required|string|max:255',
-            'cis' => 'required|string|in:'.env('ADMIN_CIS_CODE'), // Validação do CIS (.env)
+            'cis' => 'required|string|in:'.env('ADMIN_CIS_CODE'),
             'email' => ['required', 'string', 'email', 'min:10', 'max:30', 'unique:users', 'ends_with:@ic.ufal.br'],
             'senha' => 'required|string|min:8|max:255|confirmed',
         ], [
@@ -80,41 +77,34 @@ class AuthController extends Controller
             'email.ends_with' => 'Apenas o e-mail institucional é permitido',
         ]);
 
-        // 2. Criação do usuário com o 'role' de 'admin'
         $user = User::create([
             'name' => strtoupper($request->nomeCompleto),
             'email' => $request->email,
-            'cpf_cis' => 'ADM_' . uniqid() . '_' . time(), // CIS único no banco
+            'cpf_cis' => 'ADM_' . uniqid() . '_' . time(),
             'password' => Hash::make($request->senha),
-            'role' => 'admin', // Define o papel como 'admin'
+            'role' => 'admin',
         ]);
 
-        // 3. Redireciona para a página de login do admin com uma mensagem de sucesso
         return redirect()->route('admin.login')->with('success', 'Conta administrativa criada com sucesso!');
     }
 
     public function adminLogin(Request $request)
     {
-        // 1. Validação dos dados
+
         $request->validate(['email' => 'required|email', 'senha' => 'required']);
 
-        // 2. Prepara as credenciais para a tentativa de login
         $credentials = ['email' => $request->email, 'password' => $request->senha];
         $remember = $request->filled('remember');
 
-        // 3. Tenta autenticar o usuário
         if (Auth::attempt($credentials, $remember)) {
-            // 4. VERIFICA SE O USUÁRIO LOGADO É UM ADMINISTRADOR
             if (Auth::user()->role === 'admin') {
                 $request->session()->regenerate();
                 return redirect()->intended(route('admin.dashboard'));
             }
 
-            // Se for um usuário comum tentando logar aqui, faz o logout e retorna um erro
             Auth::logout();
         }
 
-        // 5. Se falhar, volta para o login com uma mensagem de erro
         return back()->withErrors(['email' => 'Credenciais de administrador inválidas.'])->onlyInput('email');
     }
 

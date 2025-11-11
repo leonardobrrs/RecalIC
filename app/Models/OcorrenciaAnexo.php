@@ -14,9 +14,6 @@ class OcorrenciaAnexo extends Model
         'file_path',
     ];
 
-    /**
-     * Um Anexo pertence a uma Ocorrência.
-     */
     public function ocorrencia()
     {
         return $this->belongsTo(Ocorrencia::class);
