@@ -1,7 +1,7 @@
 <div align="center">
   <img src="./logo.png" alt="RecalIC Logo" width="300"/>
 
-  # **RecalIC: Sistema de Gestão de Ocorrências**
+  # **RecalIC: Sistema de  Gestão de Ocorrências**
   
   ![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
 
