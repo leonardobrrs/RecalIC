@@ -293,8 +293,8 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="email" class="form-label">E-mail:</label>
-                        <input type="email" id="email" name="email" class="form-control form-control-lg" value="{{ old('email', $user->email) }}" required>
+                        <label class="form-label">E-mail</label>
+                        <p class="fs-5 text-dark" style="padding-top: 8px;">{{ $user->email }}</p>
                     </div>
 
                     <hr class="my-4">
