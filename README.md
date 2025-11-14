@@ -3,7 +3,7 @@
 
   # **RecalIC: Sistema de  Gestão de Ocorrências**
   
-  ![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
+  ![Status](https://img.shields.io/badge/status-v1.0-brightgreen)
 
   
 
