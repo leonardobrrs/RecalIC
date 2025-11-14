@@ -41,6 +41,27 @@ class AdminController extends Controller
             });
         }
 
+        if ($request->filled('reputacao')) {
+            $query->whereHas('relator', function($q_user) use ($request) {
+                switch ($request->reputacao) {
+                    case 'bloqueado':
+                        $q_user->where('reputation_score', '<=', 0);
+                        break;
+                    case 'ruim':
+                        $q_user->where('reputation_score', '>', 0)
+                               ->where('reputation_score', '<', 50);
+                        break;
+                    case 'media':
+                        $q_user->where('reputation_score', '>=', 50)
+                               ->where('reputation_score', '<', 75);
+                        break;
+                    case 'boa':
+                        $q_user->where('reputation_score', '>=', 75);
+                        break;
+                }
+            });
+        }
+
         $sortDirection = $request->input('sort', 'desc');
 
         $query->orderBy('created_at', $sortDirection);

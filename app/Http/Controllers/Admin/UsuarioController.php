@@ -24,8 +24,23 @@ class UsuarioController extends Controller
             $query->where('role', $request->role);
         }
 
-        if ($request->filled('status') && $request->status == 'bloqueado') {
-            $query->where('reputation_score', '<=', 0);
+        if ($request->filled('status')) {
+            switch ($request->status) {
+                case 'bloqueado':
+                    $query->where('reputation_score', '<=', 0);
+                    break;
+                case 'ruim':
+                    $query->where('reputation_score', '>', 0)
+                          ->where('reputation_score', '<', 50);
+                    break;
+                case 'media':
+                    $query->where('reputation_score', '>=', 50)
+                          ->where('reputation_score', '<', 75);
+                    break;
+                case 'boa':
+                    $query->where('reputation_score', '>=', 75);
+                    break;
+            }
         }
 
         $usuarios = $query->orderBy('name')->paginate(15);

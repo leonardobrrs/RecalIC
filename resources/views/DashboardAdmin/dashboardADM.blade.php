@@ -286,7 +286,7 @@
             <h4 class="mb-4 text-center text-dark">Área de Filtros</h4>
             <form id="filterForm" action="{{ url('/admin/dashboard') }}" method="GET">
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="statusFilter" class="form-label text-dark">Status</label>
                         <select id="statusFilter" name="status" class="form-select">
                             <option value="Aberto" {{ request('status') == 'Aberto' ? 'selected' : '' }}>Aberto</option>
@@ -296,7 +296,7 @@
                             <option value="" {{ request()->has('status') && request('status') == '' ? 'selected' : '' }}>Ver Todas as Ocorrências</option>
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="categoryFilter" class="form-label text-dark">Categoria</label>
                         <select id="categoryFilter" name="category" class="form-select">
                             <option value="">Todas</option>
@@ -306,7 +306,17 @@
                             <option value="Outro" {{ request('category') == 'Outro' ? 'selected' : '' }}>Outro</option>
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
+                        <label for="reputacaoFilter" class="form-label">Reputação do Usuário</label>
+                        <select name="reputacao" id="reputacaoFilter" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="boa" {{ ($filters['reputacao'] ?? '') == 'boa' ? 'selected' : '' }}>Boa</option>
+                            <option value="media" {{ ($filters['reputacao'] ?? '') == 'media' ? 'selected' : '' }}>Média</option>
+                            <option value="ruim" {{ ($filters['reputacao'] ?? '') == 'ruim' ? 'selected' : '' }}>Ruim</option>
+                            <option value="bloqueado" {{ ($filters['reputacao'] ?? '') == 'bloqueado' ? 'selected' : '' }}>Bloqueado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
                         <label for="searchField" class="form-label text-dark">Campo de busca</label>
                         <input type="text" class="form-control" name="search" id="searchField" value="{{ request('search') }}" placeholder="Pesquisar por descrição, nome...">
                     </div>
