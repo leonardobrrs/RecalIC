@@ -49,7 +49,7 @@ O **RecalIC** é uma plataforma web criada para simplificar a forma como problem
 - **[José Herberty de Oliveira Freire](https://github.com/HerbertyFreire)** - *Estudante de Ciência da Computação*
 - **[Leonardo Barbosa Barros](https://github.com/leonardobrrs)** - *Estudante de Ciência da Computação*
 - **[Felipe Gabriel Marques dos Santos](https://github.com/22felipe)** - *Estudante de Ciência da Computação*
-- **[Thyago Viana Pereira](https://github.com/thyagoviana)** - *Estudante de Ciência da Computação*
+- **[Thyago Viana Pereira](https://github.com/zeitropos)** - *Estudante de Ciência da Computação*
 - **[Thiago dos Santos Pontes](https://github.com/thiagodsp-max)** - *Estudante de Ciência da Computação*
 
 ---
