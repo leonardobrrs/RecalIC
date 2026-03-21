@@ -69,6 +69,10 @@ COPY docker/8.4/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/8.4/php.ini /etc/php/8.4/cli/conf.d/99-sail.ini
 RUN chmod +x /usr/local/bin/start-container
 
+COPY . /var/www/html
+RUN chmod +x /var/www/html/render-start.sh
+RUN chown -R sail:sail /var/www/html/storage /var/www/html/bootstrap/cache
+
 EXPOSE 80/tcp
 
-ENTRYPOINT ["start-container"]
+ENTRYPOINT ["/var/www/html/render-start.sh"]
