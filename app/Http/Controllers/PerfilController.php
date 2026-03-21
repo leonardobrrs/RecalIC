@@ -25,18 +25,13 @@ class PerfilController extends Controller
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => [
-                'required',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique('users')->ignore($user->id)
-            ],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'name.required' => 'O campo nome é obrigatório.',
+            'password.confirmed' => 'As senhas digitadas divergem.',
         ]);
 
         $user->name = $request->name;
-        $user->email = $request->email;
 
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);

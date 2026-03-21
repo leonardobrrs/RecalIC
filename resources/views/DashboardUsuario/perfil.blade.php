@@ -94,7 +94,7 @@
         }
         .form-label {
             font-weight: 500;
-            color: #6c757d;
+            color: #333740;
         }
         .fs-5 {
              font-weight: 500;
@@ -288,25 +288,25 @@
                     @method('PUT')
 
                     <div class="mb-3">
-                        <label for="name" class="form-label">Nome:</label>
+                        <label for="name" class="form-label"><strong>Nome:</strong></label>
                         <input type="text" id="name" name="name" class="form-control form-control-lg" value="{{ old('name', $user->name) }}" required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">E-mail</label>
+                        <label class="form-label"><strong>E-mail:</strong></label>
                         <p class="fs-5 text-dark" style="padding-top: 8px;">{{ $user->email }}</p>
                     </div>
 
                     <hr class="my-4">
-                    <p class="fs-6"><strong>Alterar Senha</strong><br>(Deixe em branco para não alterar)<br></p>
-
+                    <p class="fs-6 mb-0 text-dark"><strong>Alterar Senha</strong></p>
+                    <small class="text-muted">(Deixe em branco para não alterar)</small>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="password" class="form-label">Nova Senha:</label>
+                            <label for="password" class="form-label" style="padding-top: 10px;">Nova Senha:</label>
                             <input type="password" id="password" name="password" class="form-control">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="password_confirmation" class="form-label">Confirmar Nova Senha:</label>
+                        <label for="password_confirmation" class="form-label" style="padding-top: 10px;">Confirmar Nova Senha:</label>
                             <input type="password" id="password_confirmation" name="password_confirmation" class="form-control">
                         </div>
                     </div>
