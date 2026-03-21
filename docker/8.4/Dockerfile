@@ -57,7 +57,7 @@ RUN apt-get update && apt-get upgrade -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.4
+#RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.4
 
 RUN touch /var/mail/ubuntu && chown ubuntu /var/mail/ubuntu && userdel -r ubuntu || true
 RUN groupadd --force -g ${WWWGROUP:-1000} sail
